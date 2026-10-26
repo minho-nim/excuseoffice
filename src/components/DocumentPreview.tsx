@@ -126,7 +126,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
         </div>
 
         <div className="grid grid-cols-[1fr_auto] gap-2">
-          {onExportPng && <button type="button" disabled={isExporting} onClick={onExportPng} className="flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-blue-700 disabled:opacity-50"><Download className="h-4 w-4" />{isExporting ? '파일 만드는 중…' : '이미지로 저장하기'}</button>}
+          {onExportPng && <button type="button" disabled={isExporting} onClick={onExportPng} className="flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-red-700 disabled:opacity-50"><Download className="h-4 w-4" />{isExporting ? '파일 만드는 중…' : '이미지로 저장하기'}</button>}
           {onExportPdf && <button type="button" disabled={isExporting} onClick={onExportPdf} className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"><FileDown className="h-4 w-4" />PDF</button>}
         </div>
       </div>

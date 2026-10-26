@@ -78,7 +78,7 @@ export const TodayExcuseModal: React.FC<TodayExcuseModalProps> = ({
           <button
             type="button"
             onClick={handleAdopt}
-            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm cursor-pointer transition-colors"
+            className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm cursor-pointer transition-colors"
           >
             <span>이 핑계로 문서 만들기</span>
             <ArrowRight className="w-3.5 h-3.5" />

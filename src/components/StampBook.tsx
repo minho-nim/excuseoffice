@@ -175,7 +175,7 @@ export const StampBook: React.FC<StampBookProps> = ({
                   <p className="text-xs text-slate-600 font-medium mb-1 mt-1">{stamp.description}</p>
                 </div>
 
-                <button type="button" onClick={() => onSelectStampToUse?.(stamp.id)} className="mt-3 w-full rounded-xl bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100">이 도장 쓰기</button>
+                <button type="button" onClick={() => onSelectStampToUse?.(stamp.id)} className="mt-3 w-full rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100">이 도장 쓰기</button>
               </div>
             );
           })}
