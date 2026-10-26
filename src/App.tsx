@@ -11,6 +11,7 @@ import {
   UserStats,
   StampInfo,
   IssueMode,
+  DocumentDetails,
 } from './types';
 import { INITIAL_STAMPS } from './data/excuses';
 import {
@@ -32,6 +33,7 @@ import {
   setApplicantNickname,
 } from './utils/storage';
 import { exportDocumentAsPng, exportDocumentAsPdf } from './utils/export';
+import { applyDocumentDetails, getDefaultDocumentDetails, getDocumentDetails } from './utils/documentText';
 import { Navbar } from './components/Navbar';
 import { MainGenerator } from './components/MainGenerator';
 import { DocumentPreview } from './components/DocumentPreview';
@@ -48,7 +50,8 @@ import confetti from 'canvas-confetti';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'issue' | 'archive' | 'stamps'>('issue');
-  const [issueMode, setIssueMode] = useState<IssueMode>('quick');
+  const [issueMode, setIssueMode] = useState<IssueMode>('formal');
+  const [documentDetails, setDocumentDetails] = useState<DocumentDetails>(getDefaultDocumentDetails);
   const [currentCategory, setCurrentCategory] = useState<ExcuseCategory>('daily');
   const [situation, setSituation] = useState('침대에서 나오기 싫어요.');
   const [applicant, setApplicant] = useState('김핑계');
@@ -83,11 +86,12 @@ export default function App() {
 
         if (storedDocs.length > 0) {
           const latest = storedDocs[0];
-          setCurrentDocument(latest);
+          setCurrentDocument({ ...latest, issueMode: 'formal' });
+          setDocumentDetails(getDocumentDetails(latest));
           setCurrentCategory(latest.category);
           setSituation(latest.situation);
           setDocumentType(latest.documentType);
-          setIssueMode(latest.issueMode || 'quick');
+          setIssueMode('formal');
           setSelectedStampId(latest.stampId);
           setApplicant(latest.applicant);
         } else {
@@ -99,7 +103,7 @@ export default function App() {
             situation: '침대에서 나오기 싫어요.',
             excuse: initialExcuse,
             documentType: 'official_statement',
-            issueMode: 'quick',
+            issueMode: 'formal',
             approvalTier: '오늘만 특별 승인',
             stampId: 'stamp_default',
             totalIssuedSoFar: 0,
@@ -139,6 +143,11 @@ export default function App() {
     }
   };
 
+  const handleDocumentDetailsChange = (details: DocumentDetails) => {
+    setDocumentDetails(details);
+    setCurrentDocument((doc) => doc ? applyDocumentDetails(doc, details) : doc);
+  };
+
   const handleIssueModeChange = (mode: IssueMode) => {
     setIssueMode(mode);
     if (currentDocument) {
@@ -175,6 +184,7 @@ export default function App() {
         approvalTier,
         stampId: selectedStampId,
         totalIssuedSoFar: userStats.totalIssued,
+        details: documentDetails,
       });
 
       await saveDocument(newDoc);
@@ -314,6 +324,7 @@ export default function App() {
 
   const handleSelectArchivedDocument = (doc: IssuedDocument) => {
     setCurrentDocument(doc);
+    setDocumentDetails(getDocumentDetails(doc));
     setCurrentCategory(doc.category);
     setSituation(doc.situation);
     setApplicant(doc.applicant);
@@ -334,7 +345,7 @@ export default function App() {
   const achievements = getAchievementsWithStatus(userStats);
 
   return (
-    <div className="min-h-screen bg-[#fbf9f5] text-stone-800 flex flex-col font-sans selection:bg-red-200 selection:text-red-900">
+    <div className="min-h-screen bg-[#f5f7fa] text-slate-900 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900 pb-20 md:pb-0">
       {/* Top Navigation */}
       <Navbar
         activeTab={activeTab}
@@ -383,17 +394,18 @@ export default function App() {
       )}
 
       {/* Main Workspace */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-7 sm:py-10">
         {/* TAB 1: ISSUE / GENERATOR & DOCUMENT PREVIEW */}
         {activeTab === 'issue' && (
           <div className="space-y-6 sm:space-y-8">
             {/* Clean Editorial Hero Header */}
-            <div className="text-center max-w-xl mx-auto space-y-1.5 pt-2 pb-1">
-              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
-                공식 핑계 발급소
+            <div className="space-y-3 pb-2 sm:pb-4">
+              <p className="text-xs font-bold tracking-wide text-blue-600">EXCUSE OFFICE</p>
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                오늘의 핑계, 정식으로 승인받기
               </h1>
-              <p className="text-xs sm:text-sm text-stone-500 font-sans">
-                상황을 적고 친구에게 보낼 장난스러운 핑계 문서를 만들어 보세요.
+              <p className="text-sm text-slate-500 leading-relaxed">
+                상황 한 줄이면 충분해요. 도장까지 찍어서 친구에게 보내보세요.
               </p>
             </div>
 
@@ -408,6 +420,8 @@ export default function App() {
                   onSituationChange={setSituation}
                   applicant={applicant}
                   onApplicantChange={handleApplicantChange}
+                  documentDetails={documentDetails}
+                  onDocumentDetailsChange={handleDocumentDetailsChange}
                   documentType={documentType}
                   onDocumentTypeChange={handleDocumentTypeChange}
                   issueMode={issueMode}
@@ -471,7 +485,7 @@ export default function App() {
             stamps={unlockedStamps}
             achievements={achievements}
             onSelectStampToUse={(id) => {
-              setSelectedStampId(id);
+              handleStampChange(id);
               setActiveTab('issue');
             }}
           />
@@ -486,7 +500,7 @@ export default function App() {
       />
 
       {/* Clean Footer */}
-      <footer className="mt-16 border-t border-stone-200 bg-[#f7f4ee] text-stone-500 text-xs py-8">
+      <footer className="mt-10 text-slate-400 text-xs py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div className="flex items-center space-x-2">
             <span className="font-serif font-bold text-stone-800">ExcuseOffice</span>

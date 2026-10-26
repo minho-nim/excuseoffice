@@ -1,11 +1,13 @@
 export interface ExcuseVariant {
   cause: string;
   decision: string;
+  review?: string;
 }
 
-export const SIMPLE_THEMES: { keywords: string[]; variants: ExcuseVariant[] }[] = [
+export const SIMPLE_THEMES: { keywords: string[]; review: string; variants: ExcuseVariant[] }[] = [
   {
     keywords: ['청소', '설거지', '빨래', '분리수거', '방정리', '집안일'],
+    review: '본 건은 정리할 마음이 없는 경우보다 착수 시점을 결정하지 못한 경우에 가깝습니다. 눈에 보이는 변화는 없지만 시작을 고민한 시간은 인정할 여지가 있습니다. 청소 지연에 대한 1회 양해를 요청하되, 방 상태에 관한 추가 질문은 별도 접수하는 것이 적절합니다.',
     variants: [
       { cause: '청소할 마음은 있었지만 몸이 먼저 쉬는 시간을 잡았어요.', decision: '청소 불참은 게으름이 아니라 몸의 단독 결정으로 인정합니다. 잔소리는 몸에게 직접 부탁드립니다.' },
       { cause: '집안일을 시작하기 전에 충전 시간이 조금 필요했어요.', decision: '오늘의 집안일은 충전 문제로 잠시 멈췄습니다. 충전 완료 시간은 아직 비밀입니다.' },
@@ -14,6 +16,7 @@ export const SIMPLE_THEMES: { keywords: string[]; variants: ExcuseVariant[] }[] 
   },
   {
     keywords: ['늦잠', '침대', '이불', '알람', '기상', '잠들', '잠이', '졸려', '졸리'],
+    review: '주요 사유는 기상 의사 부족보다 침대에서 나오는 과정의 지연으로 보입니다. 꿈과 이불이 일정에 개입했다는 주장을 완전히 배제하기는 어렵습니다. 본 건은 침대 이탈 지연으로 정리하고, 받는 분의 1회 양해를 요청하는 것이 적절합니다.',
     variants: [
       { cause: '이불이 놓아주지 않아 침대와 협상이 길어졌어요.', decision: '늦잠이 아니라 이불에게 붙잡힌 사건입니다. 친구 여러분의 너그러운 봐주기를 요청합니다.' },
       { cause: '눈은 떴지만 몸의 시작 버튼이 조금 늦게 눌렸어요.', decision: '눈은 제시간에 떴으므로 지각 책임의 절반은 몸에게 넘깁니다. 오늘 한 번만 봐주시기 바랍니다.' },
@@ -22,6 +25,7 @@ export const SIMPLE_THEMES: { keywords: string[]; variants: ExcuseVariant[] }[] 
   },
   {
     keywords: ['과제', '숙제', '시험', '공부', '팀플', '레포트', '학교', '수업'],
+    review: '책과 과제를 인지하고 있었으나 실제 작업까지 연결되지 않은 상태로 보입니다. 결과물은 부족하지만 고민과 준비를 전혀 하지 않았다고 단정하기는 어렵습니다. 머릿속 초안도 준비 과정에 포함해 주실 것을 요청하며, 제출이 늦어진 사유로 접수합니다.',
     variants: [
       { cause: '공부할 내용이 많아서 머리가 잠깐 쉬는 시간을 요청했어요.', decision: '머릿속 자리가 꽉 차서 새 공부를 받지 못했습니다. 빈자리가 생길 때까지 기다려 주시기 바랍니다.' },
       { cause: '과제를 시작하기 전에 생각을 정리하는 데 시간이 걸렸어요.', decision: '과제를 안 한 게 아니라 마음속 초안을 쓰는 중입니다. 아직 화면에만 안 나왔습니다.' },
@@ -30,6 +34,7 @@ export const SIMPLE_THEMES: { keywords: string[]; variants: ExcuseVariant[] }[] 
   },
   {
     keywords: ['야근', '출근', '퇴근', '회사', '보고서', '회의', '업무', '월요병', '일이', '직장'],
+    review: '여러 업무가 겹치면서 남은 시간과 에너지가 부족해졌다는 내용입니다. 일정을 처리하려는 의사와 실제 처리 속도 사이에 차이가 있었던 것으로 보입니다. 고의적인 연락 지연으로 보기보다 업무 대기 상태로 인정하고, 퇴근 후 일정에 대한 양해를 요청하는 것이 적절합니다.',
     variants: [
       { cause: '할 일이 한꺼번에 몰려 머릿속에 대기 줄이 생겼어요.', decision: '머릿속 대기 줄이 길어 답변이 늦어지고 있습니다. 친구 여러분은 번호표를 뽑고 기다려 주시기 바랍니다.' },
       { cause: '일할 마음보다 쉬고 싶은 마음이 먼저 출근했어요.', decision: '몸은 출근했지만 의욕은 아직 오는 중입니다. 둘이 만날 때까지 재촉을 잠시 멈춰 주시기 바랍니다.' },
@@ -38,6 +43,7 @@ export const SIMPLE_THEMES: { keywords: string[]; variants: ExcuseVariant[] }[] 
   },
   {
     keywords: ['치킨', '야식', '다이어트', '간식', '먹었', '먹고', '배고', '식단', '피자', '라면', '과식'],
+    review: '식사 계획보다 음식의 맛과 냄새가 먼저 영향을 미친 사안입니다. 계획을 지키지 못한 점은 있으나 음식을 거절하기 어려웠다는 설명에는 일관성이 있습니다. 본 건은 음식의 적극적인 권유에 따른 결과로 접수하고, 메뉴 선택에 대한 추궁은 보류할 것을 요청합니다.',
     variants: [
       { cause: '맛있는 음식이 너무 진지하게 손짓해서 거절하기 어려웠어요.', decision: '음식의 적극적인 권유에 따른 식사였음을 인정합니다. 다이어트 관련 질문은 내일 받겠습니다.' },
       { cause: '계획에는 없었지만 입이 먼저 맛있는 약속을 잡았어요.', decision: '입이 잡은 약속을 지켰을 뿐입니다. 메뉴 선택에 대한 추가 추궁은 정중히 사양합니다.' },
@@ -46,6 +52,7 @@ export const SIMPLE_THEMES: { keywords: string[]; variants: ExcuseVariant[] }[] 
   },
   {
     keywords: ['운동', '헬스', '러닝', '달리기', '스쿼트', '요가', '홈트', '필라테스'],
+    review: '운동 의사와 별개로 몸의 참여가 이루어지지 않은 상태로 보입니다. 준비를 했거나 운동 여부를 고민한 과정까지 전부 무효로 보기는 어렵습니다. 본 건은 몸의 휴가 신청으로 정리하고, 운동 불참에 대한 1회 양해를 요청합니다.',
     variants: [
       { cause: '운동복은 준비됐지만 몸의 동의가 아직 나오지 않았어요.', decision: '운동복 착용까지는 완료했으므로 준비 점수를 요청합니다. 실제 운동은 몸과 다시 협의하겠습니다.' },
       { cause: '운동할 기운이 부족해서 몸이 쉬는 날을 신청했어요.', decision: '오늘의 운동 불참은 몸이 먼저 낸 휴가입니다. 의지 부족이라는 소문은 정정해 주시기 바랍니다.' },
@@ -54,6 +61,7 @@ export const SIMPLE_THEMES: { keywords: string[]; variants: ExcuseVariant[] }[] 
   },
   {
     keywords: ['답장', '단톡', '카톡', '메시지', '안읽씹', '연락'],
+    review: '메시지 확인 이후 답장을 작성하거나 보내는 과정에서 지연이 발생한 내용입니다. 상대를 무시하려는 의도보다 생각한 답장과 실제 전송 사이의 누락으로 보는 것이 타당합니다. 늦은 답장은 인정하되 우정에 문제가 있다는 해석은 보류할 것을 요청합니다.',
     variants: [
       { cause: '답장은 머릿속에서 보냈는데 손가락까지 전달되지 않았어요.', decision: '마음속 답장은 이미 발송했습니다. 실제 도착이 늦어진 점은 손가락 대신 사과드립니다.' },
       { cause: '뭐라고 답할지 고르다가 시간이 조금 지났어요.', decision: '무시한 게 아니라 답장 문장을 고르고 있었습니다. 고민한 시간만큼 성의를 인정해 주시기 바랍니다.' },
@@ -62,6 +70,7 @@ export const SIMPLE_THEMES: { keywords: string[]; variants: ExcuseVariant[] }[] 
   },
   {
     keywords: ['약속', '모임', '외출', '회식', '만나', '만날', '혼자'],
+    review: '만남을 원하지 않는 마음과 친구에 대한 애정은 구분할 필요가 있습니다. 본 건은 특정 친구를 피하기보다 오늘 사용할 대화와 외출 에너지가 부족하다는 내용입니다. 우정은 유지하는 조건으로 이번 일정의 조정을 요청하는 것이 적절합니다.',
     variants: [
       { cause: '사람을 만날 기운이 부족해서 마음의 충전이 필요했어요.', decision: '오늘의 모임 불참은 친구에 대한 애정과 무관합니다. 우정은 정상이고 배터리만 부족합니다.' },
       { cause: '나갈 준비보다 집에서 쉬고 싶은 마음이 더 커졌어요.', decision: '집이 붙잡는 힘이 너무 강해 외출이 어렵습니다. 오늘만 집에 양보해 주시기 바랍니다.' },
@@ -70,6 +79,7 @@ export const SIMPLE_THEMES: { keywords: string[]; variants: ExcuseVariant[] }[] 
   },
   {
     keywords: ['유튜브', '쇼츠', '릴스', '게임', '웹툰', '넷플릭스', '스마트폰', '딴짓'],
+    review: '짧게 이용할 계획이 연속 재생과 다음 콘텐츠로 인해 길어진 사안입니다. 시간 확인이 늦어진 점은 있으나 추천 목록과 자동 재생도 일정에 영향을 미친 것으로 보입니다. 본인과 화면의 공동 책임으로 접수하고, 늦어진 일정에 대한 양해를 요청합니다.',
     variants: [
       { cause: '딱 하나만 더 보려다가 시간이 먼저 퇴근했어요.', decision: '딴짓이 아니라 다음 내용을 확인하는 중이었습니다. 사라진 시간은 추천 목록에 청구합니다.' },
       { cause: '잠깐 본다는 약속이 다음 편 앞에서 약해졌어요.', decision: '다음 편이 자동으로 시작돼 멈출 틈이 없었습니다. 제 손가락은 일단 무죄를 주장합니다.' },
@@ -78,6 +88,7 @@ export const SIMPLE_THEMES: { keywords: string[]; variants: ExcuseVariant[] }[] 
   },
   {
     keywords: ['쇼핑', '충동구매', '배송비', '장바구니', '택배', '결제', '세일'],
+    review: '할인이나 배송비 절약을 기대했으나 구매 금액이 커진 사안입니다. 최초 목적이 절약이었다는 설명은 인정할 수 있으나 최종 계산과는 차이가 있습니다. 이번 검토에서는 선한 구매 의도만 참고하고, 통장 잔액에 대한 질문은 별도 안건으로 넘깁니다.',
     variants: [
       { cause: '장바구니가 비어 있으면 외로울까 봐 마음이 약해졌어요.', decision: '낭비가 아니라 장바구니를 위한 작은 배려였습니다. 통장 잔액에 대한 질문은 받지 않겠습니다.' },
       { cause: '세일이 끝난다는 말에 손가락이 먼저 움직였어요.', decision: '할인이 먼저 공격했고 저는 결제로 대응했습니다. 충동구매라는 표현은 잠시 보류해 주시기 바랍니다.' },
@@ -85,3 +96,11 @@ export const SIMPLE_THEMES: { keywords: string[]; variants: ExcuseVariant[] }[] 
     ],
   },
 ];
+
+export function findSimpleTheme(situation: string) {
+  const text = situation.toLowerCase().replace(/\s+/g, '');
+  const ranked = SIMPLE_THEMES.map((theme) => ({ theme,
+    score: theme.keywords.reduce((sum, keyword) => text.includes(keyword) ? sum + keyword.length : sum, 0),
+  })).sort((a, b) => b.score - a.score);
+  return ranked[0].score > 0 ? ranked[0].theme : undefined;
+}

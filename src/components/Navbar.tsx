@@ -1,6 +1,6 @@
 import React from 'react';
-import { ActiveTab } from '../types';
-import { Sparkles, User, FileText, Archive, Stamp } from 'lucide-react';
+import type { ActiveTab } from '../types';
+import { FileCheck2, FileText, Archive, Stamp, Sparkles, UserRound } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: ActiveTab;
@@ -11,111 +11,41 @@ interface NavbarProps {
   applicant: string;
   onOpenTodayModal: () => void;
 }
-
-export const Navbar: React.FC<NavbarProps> = ({
-  activeTab,
-  onTabChange,
-  documentCount,
-  unlockedStampsCount,
-  totalStampsCount,
-  applicant,
-  onOpenTodayModal,
-}) => {
+export function Navbar({ activeTab, onTabChange, documentCount, totalStampsCount, applicant, onOpenTodayModal }: NavbarProps) {
+  const tabs = [
+    { id: 'issue' as const, label: '만들기', icon: FileText, count: 0 },
+    { id: 'archive' as const, label: '내 문서', icon: Archive, count: documentCount },
+    { id: 'stamps' as const, label: '도장', icon: Stamp, count: totalStampsCount },
+  ];
   return (
-    <header className="sticky top-0 z-40 bg-[#fbf9f5]/90 backdrop-blur-md border-b border-stone-200">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-16 gap-4">
-          {/* Zone 1: Brand Wordmark */}
-          <div
-            onClick={() => onTabChange('issue')}
-            className="flex items-center space-x-2.5 cursor-pointer select-none shrink-0"
-          >
-            <div className="w-8 h-8 rounded-lg bg-red-700 text-stone-50 flex items-center justify-center font-serif text-sm font-bold shadow-xs">
-              認
-            </div>
-            <div>
-              <span className="font-serif font-bold text-stone-900 text-base sm:text-lg tracking-tight">
-                ExcuseOffice
-              </span>
-              <span className="text-[11px] text-stone-500 font-sans ml-1.5 hidden sm:inline">
-                핑계 문서 만들기
-              </span>
-            </div>
-          </div>
-
-          {/* Zone 2: Navigation Links */}
-          <nav className="flex items-center space-x-1 sm:space-x-2">
-            <button
-              type="button"
-              onClick={() => onTabChange('issue')}
-              className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors cursor-pointer flex items-center space-x-1.5 ${
-                activeTab === 'issue'
-                  ? 'bg-stone-900 text-stone-50 font-semibold'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
-              }`}
-            >
-              <FileText className="w-3.5 h-3.5" />
-              <span>핑계 만들기</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onTabChange('archive')}
-              className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors cursor-pointer flex items-center space-x-1.5 ${
-                activeTab === 'archive'
-                  ? 'bg-stone-900 text-stone-50 font-semibold'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
-              }`}
-            >
-              <Archive className="w-3.5 h-3.5" />
-              <span>내 문서</span>
-              {documentCount > 0 && (
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                  activeTab === 'archive' ? 'bg-stone-700 text-stone-200' : 'bg-stone-200 text-stone-700'
-                }`}>
-                  {documentCount}
-                </span>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onTabChange('stamps')}
-              className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors cursor-pointer flex items-center space-x-1.5 ${
-                activeTab === 'stamps'
-                  ? 'bg-stone-900 text-stone-50 font-semibold'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
-              }`}
-            >
-              <Stamp className="w-3.5 h-3.5" />
-              <span>도장 모으기</span>
-              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                activeTab === 'stamps' ? 'bg-red-800 text-stone-100' : 'bg-red-50 text-red-700'
-              }`}>
-                {unlockedStampsCount}/{totalStampsCount}
-              </span>
-            </button>
+    <>
+      <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+          <button type="button" onClick={() => onTabChange('issue')} className="flex shrink-0 items-center gap-2.5 text-left" aria-label="핑계오피스 홈">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-[0_4px_12px_-4px_rgba(37,99,235,0.5)]"><FileCheck2 className="h-5 w-5" /></span>
+            <span><span className="block text-[17px] font-extrabold tracking-tight text-slate-900">핑계오피스</span><span className="hidden text-[10px] font-medium tracking-wide text-slate-400 sm:block">EXCUSE OFFICE</span></span>
+          </button>
+          <nav aria-label="주 메뉴" className="hidden items-center gap-1 md:flex">
+            {tabs.map(({ id, label, icon: Icon, count }) => (
+              <button key={id} type="button" aria-current={activeTab === id ? 'page' : undefined} onClick={() => onTabChange(id)} className={'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ' + (activeTab === id ? 'bg-blue-50 text-blue-700' : 'text-slate-500 hover:bg-slate-50')}>
+                <Icon className="h-4 w-4" />{label}{count > 0 && <span className="text-[10px] opacity-60">{count}</span>}
+              </button>
+            ))}
           </nav>
-
-          {/* Zone 3: Today's Excuse & Applicant */}
-          <div className="flex items-center space-x-2 shrink-0">
-            <button
-              type="button"
-              onClick={onOpenTodayModal}
-              className="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold rounded-lg border border-amber-200/80 transition-colors flex items-center space-x-1 cursor-pointer"
-            >
-              <Sparkles className="w-3 h-3 text-amber-600" />
-              <span className="hidden sm:inline">오늘의 추천</span>
-              <span className="sm:hidden">오늘</span>
-            </button>
-
-            <div className="hidden md:flex items-center space-x-1.5 text-xs text-stone-600 px-2 py-1 bg-stone-100/80 rounded-lg border border-stone-200/60">
-              <User className="w-3 h-3 text-stone-400" />
-              <span className="font-medium text-stone-800">{applicant}</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={onOpenTodayModal} className="flex items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-2.5 text-xs font-semibold text-slate-600 hover:bg-blue-50 hover:text-blue-700"><Sparkles className="h-3.5 w-3.5" />오늘의 핑계</button>
+            <span className="hidden items-center gap-1.5 rounded-full border border-slate-200 px-3 py-2 text-xs font-medium text-slate-500 lg:flex"><UserRound className="h-3.5 w-3.5" />{applicant}</span>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+      <nav aria-label="모바일 메뉴" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 border-t border-slate-200 bg-white/95 px-3 pt-2 backdrop-blur-xl md:hidden" style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}>
+        {tabs.map(({ id, label, icon: Icon, count }) => (
+          <button key={id} type="button" aria-current={activeTab === id ? 'page' : undefined} onClick={() => onTabChange(id)} className={'flex flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold ' + (activeTab === id ? 'text-blue-600' : 'text-slate-400')}>
+            <span className="relative"><Icon className="h-5 w-5" />{id === 'archive' && count > 0 && <span className="absolute -right-3 -top-1 rounded-full bg-blue-600 px-1 text-[8px] text-white">{count}</span>}</span>{label}
+          </button>
+        ))}
+      </nav>
+    </>
   );
-};
+}
+

@@ -1,7 +1,8 @@
-import { ExcuseCategory, DocumentType, GeneratedExcuse, IssuedDocument, IssueMode } from '../types';
+import { ExcuseCategory, DocumentType, GeneratedExcuse, IssuedDocument, IssueMode, DocumentDetails } from '../types';
 import { APPROVAL_TIERS, INITIAL_STAMPS } from '../data/excuses';
-import { SIMPLE_THEMES, type ExcuseVariant } from '../data/simpleThemes';
-import { DOCUMENT_DISCLAIMER } from './documentText';
+import { findSimpleTheme, type ExcuseVariant } from '../data/simpleThemes';
+import { getReviewOpinion } from './review';
+import { DOCUMENT_DISCLAIMER, applyDocumentDetails } from './documentText';
 
 function pick<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)];
@@ -10,12 +11,8 @@ function pick<T>(items: T[]): T {
 const recentVariants = new Map<string, string[]>();
 
 function findVariants(category: ExcuseCategory, situation: string): ExcuseVariant[] {
-  const text = situation.toLowerCase().replace(/\s+/g, '');
-  const ranked = SIMPLE_THEMES.map((theme) => ({
-    theme,
-    score: theme.keywords.reduce((sum, keyword) => text.includes(keyword) ? sum + keyword.length : sum, 0),
-  })).sort((a, b) => b.score - a.score);
-  if (ranked[0].score > 0) return ranked[0].theme.variants;
+  const theme = findSimpleTheme(situation);
+  if (theme) return theme.variants;
   const options = SIMPLE_REASONS[category] || SIMPLE_REASONS.etc;
   return options.causes.map((cause, index) => ({ cause, decision: options.decisions[index] }));
 }
@@ -42,12 +39,6 @@ const SIMPLE_REASONS: Record<ExcuseCategory, { causes: string[]; decisions: stri
     decisions: ['사정이 이러하므로 오늘 한 번만 봐주시기 바랍니다. 다음 핑계는 더 잘 준비하겠습니다.', '설명은 조금 부족하지만 도장은 확실히 찍었습니다. 친구 여러분의 넓은 이해를 요청합니다.', '본 사유를 오늘의 공식 핑계로 제출합니다. 추가 질문은 간식과 함께 부탁드립니다.'],
   },
 };
-
-const SIMPLE_JUDGMENTS = [
-  '이유가 너무 구체적이므로 일단 고개를 끄덕이기로 했습니다.',
-  '말은 조금 길지만 본인은 매우 진지하게 주장하고 있습니다.',
-  '핑계가 접수됐습니다. 친구 여러분의 너그러운 판정을 기다립니다.',
-];
 
 const TODAY_SITUATIONS: Record<ExcuseCategory, string[]> = {
   daily: ['침대에서 나오기 싫어요.', '아침 준비가 늦어졌어요.', '청소를 미루고 싶어요.'],
@@ -80,10 +71,10 @@ export function generateExcuse(
   recentVariants.delete(key);
   recentVariants.set(key, history);
   if (recentVariants.size > 100) recentVariants.delete(recentVariants.keys().next().value!);
-  return buildExcuse(situation, variant, pick(SIMPLE_JUDGMENTS));
+  return buildExcuse(situation, variant);
 }
 
-function buildExcuse(situation: string, variant: ExcuseVariant, judgment: string): GeneratedExcuse {
+function buildExcuse(situation: string, variant: ExcuseVariant): GeneratedExcuse {
   const shortSituation = situation.length > 28 ? situation.slice(0, 28) + '…' : situation;
   const { cause, decision } = variant;
   const title = shortSituation
@@ -96,7 +87,7 @@ function buildExcuse(situation: string, variant: ExcuseVariant, judgment: string
     description: situation
       ? '“' + situation + '” 사유로 친구 여러분의 봐주기를 요청합니다.'
       : '친구 여러분에게 오늘의 핑계를 제출합니다.',
-    judgment,
+    judgment: getReviewOpinion(situation),
     decision,
     fullSummary: cause + ' ' + decision,
   };
@@ -130,7 +121,7 @@ export function getTodayExcuse(dateString?: string): {
   const situations = TODAY_SITUATIONS[category];
   const situation = situations[Math.floor(seed / 7) % situations.length];
   const variants = findVariants(category, situation);
-  const excuse = buildExcuse(situation, variants[Math.floor(seed / 17) % variants.length], SIMPLE_JUDGMENTS[Math.floor(seed / 23) % SIMPLE_JUDGMENTS.length]);
+  const excuse = buildExcuse(situation, variants[Math.floor(seed / 17) % variants.length]);
   const [year, month, day] = key.split('-');
 
   return {
@@ -171,6 +162,7 @@ export function createIssuedDocument(params: {
   approvalTier: string;
   stampId: string;
   totalIssuedSoFar: number;
+  details?: DocumentDetails;
 }): IssuedDocument {
   const now = new Date();
   const yyyy = now.getFullYear();
@@ -178,7 +170,7 @@ export function createIssuedDocument(params: {
   const dd = String(now.getDate()).padStart(2, '0');
   const stamp = INITIAL_STAMPS.find((item) => item.id === params.stampId) || INITIAL_STAMPS[0];
 
-  return {
+  const document: IssuedDocument = {
     id: crypto.randomUUID
       ? crypto.randomUUID()
       : 'doc-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
@@ -198,4 +190,5 @@ export function createIssuedDocument(params: {
     organization: '핑계오피스',
     disclaimer: DOCUMENT_DISCLAIMER,
   };
+  return applyDocumentDetails(document, params.details);
 }

@@ -1,5 +1,31 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: 'Noto Sans KR', system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    margin: 0;
+    font-family: 'Noto Sans KR', system-ui, sans-serif;
+    background: #f5f7fa;
+    -webkit-font-smoothing: antialiased;
+    overflow-wrap: break-word;
+  }
+  button, summary { -webkit-tap-highlight-color: transparent; }
+  button:not(:disabled), summary { cursor: pointer; }
+  :focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
+  ::selection { background: #dbeafe; color: #1e3a8a; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
 @layer utilities {
   .font-doc {
     font-family: 'Noto Serif KR', 'Gowun Batang', serif;

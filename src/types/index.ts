@@ -49,6 +49,13 @@ export interface GeneratedExcuse {
 
 export type IssueMode = 'quick' | 'formal'; // 'quick': 간편 발급증 (SNS/메신저 최적화) | 'formal': 정식 행정 공문 (A4 표준)
 
+export interface DocumentDetails {
+  teamLeader: string;
+  representative: string;
+  recipient: string;
+  date: string;
+}
+
 export interface IssuedDocument {
   id: string;                    // UUID
   issueNumber: string;           // EX-20261023-0042
@@ -66,6 +73,7 @@ export interface IssuedDocument {
   stampSealText: string;
   organization: string;          // 발급 기관
   disclaimer: string;            // 'MinLab 패러디 문서 — 실제 증빙 효력 없음'
+  details?: DocumentDetails;
 }
 
 export interface UserStats {

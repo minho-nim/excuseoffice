@@ -12,7 +12,7 @@ const INITIAL_STATS: UserStats = {
     social: 0,
     etc: 0,
   },
-  unlockedStampIds: ['stamp_default'],
+  unlockedStampIds: INITIAL_STAMPS.map((stamp) => stamp.id),
   nickname: '김핑계',
   lastVisitDate: '',
   streakDays: 1,
@@ -138,8 +138,7 @@ export function normalizeUserStats(value?: unknown): UserStats {
   return {
     totalIssued: Math.max(count(source.totalIssued), Object.values(categoryCount).reduce((a, b) => a + b, 0)),
     categoryCount,
-    unlockedStampIds: ['stamp_default', ...INITIAL_STAMPS.filter((stamp) => stamp.id !== 'stamp_default' &&
-      Array.isArray(source.unlockedStampIds) && source.unlockedStampIds.includes(stamp.id)).map((stamp) => stamp.id)],
+    unlockedStampIds: INITIAL_STAMPS.map((stamp) => stamp.id),
     unlockedAchievements: ACHIEVEMENTS.filter((item) => Array.isArray(source.unlockedAchievements) &&
       source.unlockedAchievements.includes(item.id)).map((item) => item.id),
     nickname: typeof source.nickname === 'string' && source.nickname.trim() ? source.nickname.trim().slice(0, 12) : '김핑계',
@@ -289,10 +288,10 @@ export function recordDocumentIssuance(
 /**
  * Returns list of stamps with dynamic unlock status based on user stats
  */
-export function getStampsWithStatus(stats: UserStats): StampInfo[] {
+export function getStampsWithStatus(_stats: UserStats): StampInfo[] {
   return INITIAL_STAMPS.map((stamp) => ({
     ...stamp,
-    isUnlocked: stats.unlockedStampIds.includes(stamp.id),
+    isUnlocked: true,
   }));
 }
 

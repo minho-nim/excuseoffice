@@ -1,6 +1,6 @@
 import { IssuedDocument } from '../types';
 import { CATEGORIES, DOCUMENT_TYPES, INITIAL_STAMPS } from '../data/excuses';
-import { DOCUMENT_DISCLAIMER } from './documentText';
+import { DOCUMENT_DISCLAIMER, applyDocumentDetails } from './documentText';
 
 const DB_NAME = 'ExcuseOfficeDB';
 const DB_VERSION = 1;
@@ -266,7 +266,7 @@ export async function importDocuments(docs: any[]): Promise<{ added: number; ski
       disclaimer: DOCUMENT_DISCLAIMER,
     };
 
-    await saveDocument(validDoc);
+    await saveDocument(applyDocumentDetails(validDoc, item.details));
     existingIds.add(validDoc.id);
     added++;
   }

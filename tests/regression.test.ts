@@ -8,6 +8,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { DocumentPreview } from '../src/components/DocumentPreview';
 import { DOCUMENT_DISCLAIMER, getDocumentShareText } from '../src/utils/documentText';
+import { INITIAL_STAMPS } from '../src/data/excuses';
 import { SIMPLE_THEMES } from '../src/data/simpleThemes';
 
 class MemoryStorage implements Storage {
@@ -129,12 +130,12 @@ test('예전 백업에 없는 도장은 현재 기록과 합치고 연속 방문
 
 test('손상된 활동 기록은 정상 값으로 정리하고 초기 기록 배열을 공유하지 않는다', () => {
   const first = normalizeUserStats();
-  first.unlockedStampIds.push('stamp_special');
-  assert.deepEqual(normalizeUserStats().unlockedStampIds, ['stamp_default']);
+  first.unlockedStampIds.pop();
+  assert.deepEqual(normalizeUserStats().unlockedStampIds, INITIAL_STAMPS.map((stamp) => stamp.id));
   const invalid = normalizeUserStats({ totalIssued: -2, categoryCount: { daily: 'bad' }, unlockedStampIds: ['unknown'] });
   assert.equal(invalid.totalIssued, 0);
   assert.equal(invalid.categoryCount.daily, 0);
-  assert.deepEqual(invalid.unlockedStampIds, ['stamp_default']);
+  assert.deepEqual(invalid.unlockedStampIds, INITIAL_STAMPS.map((stamp) => stamp.id));
 });
 
 test('간단한 문서와 긴 문서는 맨 아래 안내를 한 번만 보여 주고 5번 안내와 조언을 넣지 않는다', () => {
