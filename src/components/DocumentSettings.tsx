@@ -13,7 +13,7 @@ export interface DocumentSettingsProps {
 }
 
 export function DocumentSettings({ applicant, onApplicantChange, stamps, selectedStampId, onStampChange, details, onDetailsChange }: DocumentSettingsProps) {
-  const inputClass = 'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-50';
+  const inputClass = 'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-50';
   const update = (key: keyof DocumentDetails, value: string) => onDetailsChange({ ...details, [key]: value });
   return (
     <section className="space-y-4 border-t border-slate-100 pt-5" aria-label="이름과 도장 바꾸기">
@@ -31,7 +31,7 @@ export function DocumentSettings({ applicant, onApplicantChange, stamps, selecte
           {stamps.map((stamp) => {
             const selected = stamp.id === selectedStampId;
             return (
-              <button key={stamp.id} type="button" aria-label={stamp.name} aria-pressed={selected} onClick={() => onStampChange(stamp.id)} className={'relative flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl border px-1 py-3 text-[11px] font-semibold transition ' + (selected ? 'border-red-500 bg-red-50 text-red-700 ring-1 ring-red-500' : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50')}>
+              <button key={stamp.id} type="button" aria-label={stamp.name} aria-pressed={selected} onClick={() => onStampChange(stamp.id)} className={'relative flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl border px-1 py-3 text-[11px] font-semibold transition ' + (selected ? 'border-brand-500 bg-brand-50 text-brand-700 ring-1 ring-brand-500' : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50')}>
                 {selected && <Check className="absolute right-1 top-1 h-3 w-3" />}
                 <Stamp className="h-5 w-5" style={{ color: stamp.color }} />
                 <span>{stamp.name.replace(' 도장', '')}</span>

@@ -31,7 +31,7 @@ export async function exportDocumentAsPng(
     const dataUrl = await toPng(element, {
       pixelRatio: 2.5,
       cacheBust: true,
-      backgroundColor: '#faf7ee',
+      backgroundColor: '#ffffff',
       style: {
         transform: 'none',
         borderRadius: '0px',
@@ -74,7 +74,7 @@ export async function exportDocumentAsPdf(
     const dataUrl = await toPng(element, {
       pixelRatio: 2.5,
       cacheBust: true,
-      backgroundColor: '#faf7ee',
+      backgroundColor: '#ffffff',
       style: {
         transform: 'none',
       },

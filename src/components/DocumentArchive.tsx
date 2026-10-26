@@ -298,7 +298,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
                   </div>
 
                   <div className="flex items-center space-x-1.5 self-end sm:self-auto">
-                    <span className="text-[11px] text-red-700 font-bold bg-red-50 border border-red-200 px-2 py-0.5 rounded">
+                    <span className="text-[11px] text-brand-700 font-bold bg-brand-50 border border-brand-200 px-2 py-0.5 rounded">
                       {doc.stampName}
                     </span>
                     <button
@@ -323,7 +323,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
                   </div>
                 </div>
 
-                <h3 className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-red-900 transition-colors">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-brand-900 transition-colors">
                   {doc.excuse.title}
                 </h3>
 
@@ -335,7 +335,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
                   <span className="font-sans text-[11px] text-slate-500">
                     이름: <strong className="text-slate-800">{doc.applicant}</strong>
                   </span>
-                  <span className="text-red-700 font-semibold text-[11px] truncate max-w-[260px] sm:max-w-md">
+                  <span className="text-brand-700 font-semibold text-[11px] truncate max-w-[260px] sm:max-w-md">
                     핑계: {doc.excuse.decision}
                   </span>
                 </div>

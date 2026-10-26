@@ -3,7 +3,7 @@ import type { IssuedDocument, IssueMode } from '../types';
 import { INITIAL_STAMPS } from '../data/excuses';
 import { DOCUMENT_DISCLAIMER, getDocumentDetails, getDocumentShareText } from '../utils/documentText';
 import { getReviewOpinion } from '../utils/review';
-import { Check, CheckCircle2, Copy, Download, FileDown, FileText, RefreshCw, Sparkles, ZoomIn, ZoomOut } from 'lucide-react';
+import { Check, Copy, Download, FileDown, FileText, RefreshCw, Sparkles, ZoomIn, ZoomOut } from 'lucide-react';
 
 interface DocumentPreviewProps {
   document: IssuedDocument;
@@ -35,19 +35,18 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
       }
     };
 
-    const renderStamp = () => (
-      <div className={'relative flex h-20 w-20 shrink-0 flex-col items-center justify-center border-[3px] text-center ' + (stamp.shape === 'square' ? 'rounded-md' : stamp.shape === 'oval' ? 'rounded-[45%]' : 'rounded-full')}
-        style={{ color: stamp.color, borderColor: stamp.color, transform: 'rotate(-8deg)' }}>
-        <span className="text-[8px] font-semibold tracking-widest">핑계오피스</span>
-        <span className="px-1 font-stamp text-[11px] font-black leading-tight">{stamp.sealText}</span>
-        <span className="mt-0.5 text-[8px]">{details.date.split('-').join('.')}</span>
-      </div>
-    );
-
+    const cell = 'border border-neutral-400 px-2 py-2 align-middle break-words';
+    const labelCell = cell + ' text-center font-medium tracking-widest';
+    const condition = '위 사유와 작성일에 한해 1회 적용하며, 다른 일정에는 별도로 양해를 구합니다.';
+    const approvalPeople = [
+      { role: '기안', name: doc.applicant, action: '작성' },
+      { role: '팀장', name: details.teamLeader, action: '검토' },
+      { role: '대표', name: details.representative, action: '승인' },
+    ];
     const section = (number: string, title: string, children: React.ReactNode) => (
       <section className="space-y-2">
-        <h3 className="font-sans text-[13px] font-bold text-slate-950">{number}. {title}</h3>
-        <div className="pl-4 text-justify leading-[1.95] break-words">{children}</div>
+        <h3 className="font-semibold">{number}. {title}</h3>
+        <div className="pl-3 leading-[1.9] break-words">{children}</div>
       </section>
     );
 
@@ -76,57 +75,55 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
             </div>
           </div>
 
-          <div ref={ref} id="excuse-official-document" className={'relative mx-auto w-full max-w-[680px] border border-slate-200 bg-white p-5 text-slate-900 shadow-[0_5px_18px_-8px_rgba(15,23,42,0.2)] sm:p-9 ' + (largeFont ? 'text-sm' : 'text-xs sm:text-[13px]')} style={{ fontFamily: "'Noto Serif KR', serif" }}>
-            <header className="mb-6 flex items-end justify-between border-b-2 border-slate-900 pb-3 font-sans">
-              <div><p className="text-[10px] font-bold tracking-[0.18em] text-slate-400">EXCUSE OFFICE</p><p className="mt-1 text-base font-extrabold tracking-tight text-slate-950">주식회사 핑계오피스</p></div>
-              <span className="text-[10px] font-medium text-slate-400">사유 검토 · 결재</span>
-            </header>
-
-            {!quick && (
-              <div className="mb-5 flex justify-end">
-                <table className="w-full max-w-[300px] table-fixed border-collapse border border-slate-400 text-center font-sans text-[11px]" aria-label="결재란">
-                  <colgroup><col className="w-7" /><col /><col /><col /></colgroup>
-                  <tbody>
-                    <tr className="bg-slate-50"><th rowSpan={3} className="border border-slate-400 px-1 font-semibold leading-6">결<br />재</th><th className="border border-slate-400 py-1.5 font-semibold">기안</th><th className="border border-slate-400 py-1.5 font-semibold">팀장 검토</th><th className="border border-slate-400 py-1.5 font-semibold">대표 결재</th></tr>
-                    <tr className="h-14"><td className="break-all border border-slate-400 px-1 font-bold">{doc.applicant}</td><td className="break-all border border-slate-400 px-1 font-semibold">{details.teamLeader}</td><td className="break-all border border-slate-400 px-1 font-bold text-red-800">{details.representative}</td></tr>
-                    <tr className="text-[9px] text-slate-500">{['작성', '검토', '승인'].map((label) => <td key={label} className="border border-slate-400 px-1 py-1">{label} · {details.date.slice(5).split('-').join('.')}</td>)}</tr>
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            <h2 className="mb-6 text-center font-sans text-2xl font-bold tracking-[0.5em] text-slate-950 sm:text-3xl">사유서</h2>
-            <dl className="mb-5 grid grid-cols-[72px_1fr] gap-y-2 border-y border-slate-300 py-3 font-sans text-[11px] sm:text-xs">
-              <dt className="font-semibold text-slate-500">문서번호</dt><dd className="break-all font-medium">{doc.issueNumber}</dd>
-              <dt className="font-semibold text-slate-500">작성일자</dt><dd>{dateText}</dd>
-              <dt className="font-semibold text-slate-500">수신</dt><dd className="min-w-0 break-words">{details.recipient}</dd>
-              <dt className="font-semibold text-slate-500">기안자</dt><dd className="min-w-0 break-words">{doc.applicant}</dd>
-            </dl>
-            <div className="mb-6 flex items-start gap-3 border-b-2 border-slate-800 pb-3 font-sans">
-              <span className="shrink-0 pt-0.5 text-xs font-bold">제목</span>
-              <h3 className="text-sm font-bold leading-relaxed break-words sm:text-base">{doc.excuse.title}</h3>
-            </div>
-
-            <div className="space-y-5">
-              {section('1', '신청 내용', <p>다음 사유에 대한 인정 및 일정 조정을 요청드리오니 검토 후 결재하여 주시기 바랍니다.<br /><strong className="mt-2 block rounded-sm bg-slate-50 px-3 py-2 font-medium">“{doc.situation}”</strong></p>)}
-              {section('2', '발생 사유', <p>{doc.excuse.cause}</p>)}
-              {!quick && section('3', '검토 의견', <p>{review}</p>)}
-              <section className="border border-slate-400">
-                <h3 className="border-b border-slate-300 bg-slate-50 px-3 py-2 font-sans text-[13px] font-bold text-slate-950">{quick ? '3' : '4'}. 처리 내용 <span className="ml-1 text-[10px] font-normal text-slate-500">최종 핑계</span></h3>
-                <p className="p-3.5 font-semibold leading-[1.95] break-words">{doc.excuse.decision}</p>
-              </section>
-            </div>
-
-            <div className="mt-8 flex items-center justify-end gap-3 border-t border-slate-200 pt-5">
-              <div className="min-w-0 text-right font-sans"><p className="text-[10px] text-slate-500">{dateText}</p><p className="mt-2 text-sm font-bold">주식회사 핑계오피스</p><p className="mt-1 text-xs">대표 {details.representative}</p></div>
-              {renderStamp()}
-            </div>
-            <p data-document-disclaimer="true" className="mt-5 border-t border-slate-200 pt-3 text-center font-sans text-[9px] leading-relaxed text-slate-400">{DOCUMENT_DISCLAIMER}</p>
+          <p className="mb-2 text-center text-[10px] text-slate-500 sm:hidden">문서를 옆으로 밀면 결재란까지 볼 수 있어요.</p>
+          <div className="overflow-x-auto pb-2" role="region" aria-label="결재 문서 미리보기" tabIndex={0}>
+          <div ref={ref} id="excuse-official-document" className={'mx-auto min-w-[560px] w-full max-w-[720px] bg-white p-5 text-neutral-950 shadow-sm sm:p-6 font-sans ' + (largeFont ? 'text-[13px]' : 'text-[11px]')}>
+            <h2 className="mb-4 text-center text-[25px] font-bold tracking-[0.12em]">사유 인정 품의서</h2>
+            <table className="w-full table-fixed border-collapse border-2 border-neutral-500 leading-relaxed" aria-label="품의서">
+              <colgroup><col className="w-[15%]" /><col className={quick ? 'w-[85%]' : 'w-[35%]'} />{!quick && <col className="w-[50%]" />}</colgroup>
+              <tbody>
+                <tr>
+                  <th scope="row" className={labelCell}>품의번호</th><td className={cell + ' break-all'}>{doc.issueNumber}</td>
+                  {!quick && <td rowSpan={4} className="border border-neutral-400 p-0 align-top">
+                    <table className="h-full w-full table-fixed border-collapse text-center text-[10px]" aria-label="결재란">
+                      <colgroup><col className="w-6" /><col /><col /><col /></colgroup>
+                      <tbody>
+                        <tr><th rowSpan={3} className="border-r border-neutral-400 font-normal leading-6">결<br />재</th>{approvalPeople.map((person) => <th key={person.role} className="border-r border-b border-neutral-400 py-1 font-normal last:border-r-0">{person.role}</th>)}</tr>
+                        <tr>{approvalPeople.map((person, index) => <td key={person.role} className="border-r border-neutral-400 px-1 py-3 align-middle last:border-r-0">
+                          <div className="mx-auto flex h-12 w-12 items-center justify-center border-2 p-1 font-stamp text-[13px] font-bold leading-tight" style={{ color: index === 2 ? stamp.color : '#713844', borderColor: index === 2 ? stamp.color : '#713844', borderRadius: index === 2 && stamp.shape === 'square' ? '5px' : index === 2 && stamp.shape === 'oval' ? '40%' : '50%', transform: 'rotate(-6deg)', wordBreak: 'break-all', fontSize: person.name.length > 6 ? '9px' : '13px' }}>{person.name}</div>
+                          {index === 2 && <p className="mt-1 text-[8px]" style={{ color: stamp.color }}>{stamp.sealText}</p>}
+                        </td>)}</tr>
+                        <tr>{approvalPeople.map((person) => <td key={person.role} className="border-r border-t border-neutral-400 px-1 py-1 last:border-r-0"><p>{details.date}</p><p className="break-all">{person.name} · {person.action}</p></td>)}</tr>
+                      </tbody>
+                    </table>
+                  </td>}
+                </tr>
+                <tr><th scope="row" className={labelCell}>작성일자</th><td className={cell}>{dateText}</td></tr>
+                <tr><th scope="row" className={labelCell}>기안부서</th><td className={cell}>핑계오피스 · 사유검토팀</td></tr>
+                <tr><th scope="row" className={labelCell}>기안자</th><td className={cell}>{doc.applicant}</td></tr>
+                <tr><th scope="row" className={labelCell}>수신 및 참조</th><td colSpan={quick ? 1 : 2} className={cell}>{details.recipient}</td></tr>
+                <tr><th scope="row" className={labelCell}>시행일자</th><td colSpan={quick ? 1 : 2} className={cell}>{dateText}</td></tr>
+                <tr><th scope="row" className={labelCell}>제목</th><td colSpan={quick ? 1 : 2} className={cell + ' font-medium'}>{doc.excuse.title}</td></tr>
+                <tr><td colSpan={quick ? 2 : 3} className="border border-neutral-400 px-3 py-5 align-top">
+                  <p className="mb-5 leading-[1.9]">아래와 같이 사유를 제출하오니 검토 후 승인하여 주시기 바랍니다.</p>
+                  <div className={quick ? 'space-y-4' : 'min-h-[390px] space-y-5'}>
+                    {section('1', '신청 사유', <p>{doc.situation}</p>)}
+                    {section('2', '발생 경위', <p>{doc.excuse.cause}</p>)}
+                    {!quick && section('3', '검토 의견', <p>{review}</p>)}
+                    {section(quick ? '3' : '4', '처리 내역', <div className="space-y-3"><p><span className="font-medium">가. 처리 결과 (최종 핑계)</span><br />{doc.excuse.decision}</p>{!quick && <p><span className="font-medium">나. 적용 조건</span><br />{condition}</p>}</div>)}
+                  </div>
+                  <p className="mt-8">첨부: 없음. 끝.</p>
+                </td></tr>
+              </tbody>
+            </table>
+            <p className="mt-3 text-right text-[10px] text-neutral-500">핑계오피스 · 사유검토팀</p>
+            <p data-document-disclaimer="true" className="mt-4 text-center text-[9px] leading-relaxed text-neutral-400">{DOCUMENT_DISCLAIMER}</p>
+          </div>
           </div>
         </div>
 
         <div className="grid grid-cols-[1fr_auto] gap-2">
-          {onExportPng && <button type="button" disabled={isExporting} onClick={onExportPng} className="flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-red-700 disabled:opacity-50"><Download className="h-4 w-4" />{isExporting ? '파일 만드는 중…' : '이미지로 저장하기'}</button>}
+          {onExportPng && <button type="button" disabled={isExporting} onClick={onExportPng} className="flex items-center justify-center gap-2 rounded-2xl bg-brand-600 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-brand-700 disabled:opacity-50"><Download className="h-4 w-4" />{isExporting ? '파일 만드는 중…' : '이미지로 저장하기'}</button>}
           {onExportPdf && <button type="button" disabled={isExporting} onClick={onExportPdf} className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"><FileDown className="h-4 w-4" />PDF</button>}
         </div>
       </div>

@@ -34,5 +34,5 @@ export function applyDocumentDetails(doc: IssuedDocument, value: unknown): Issue
 
 export function getDocumentShareText(doc: IssuedDocument): string {
   const details = getDocumentDetails(doc);
-  return `[사유서] ${doc.excuse.title}\n문서 번호: ${doc.issueNumber}\n작성일: ${details.date}\n기안자: ${doc.applicant}\n검토: ${details.teamLeader}\n결재: ${details.representative}\n수신: ${details.recipient}\n\n신청 내용: "${doc.situation}"\n발생 사유: ${doc.excuse.cause}\n검토 의견: ${getReviewOpinion(doc.situation)}\n최종 핑계: ${doc.excuse.decision}\n\n${DOCUMENT_DISCLAIMER}`;
+  return `[사유 인정 품의서] ${doc.excuse.title}\n문서 번호: ${doc.issueNumber}\n작성일: ${details.date}\n기안자: ${doc.applicant}\n검토: ${details.teamLeader}\n결재: ${details.representative}\n수신: ${details.recipient}\n\n신청 사유: "${doc.situation}"\n발생 경위: ${doc.excuse.cause}\n검토 의견: ${getReviewOpinion(doc.situation)}\n처리 내역 (최종 핑계): ${doc.excuse.decision}\n적용 조건: 위 사유와 작성일에 한해 1회 적용하며, 다른 일정에는 별도로 양해를 구합니다.\n\n${DOCUMENT_DISCLAIMER}`;
 }

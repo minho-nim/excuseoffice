@@ -168,7 +168,7 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
                 onClick={() => onCategoryChange(cat.id)}
                 className={`py-2 px-1 rounded-lg text-xs font-semibold transition-all cursor-pointer text-center ${
                   isActive
-                    ? 'bg-red-50 text-red-700 border border-red-200'
+                    ? 'bg-brand-50 text-brand-700 border border-brand-200'
                     : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/70'
                 }`}
               >
@@ -186,7 +186,7 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
           <button
             type="button"
             onClick={handleRandomPick}
-            className="text-xs font-semibold text-red-600 hover:text-red-800 flex items-center space-x-1 cursor-pointer transition-colors"
+            className="text-xs font-semibold text-brand-600 hover:text-brand-800 flex items-center space-x-1 cursor-pointer transition-colors"
           >
             <Shuffle className="w-3 h-3" />
             <span>예시 바꾸기</span>
@@ -204,7 +204,7 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
               if (errorMessage) setErrorMessage(null);
             }}
             placeholder="예: 침대에서 나오기 싫어요. 일이 너무 많아요."
-            className="w-full text-xs sm:text-sm p-3.5 bg-slate-50/80 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-red-500 focus:bg-white text-slate-900 placeholder:text-slate-400 resize-none leading-relaxed transition-all"
+            className="w-full text-xs sm:text-sm p-3.5 bg-slate-50/80 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-brand-500 focus:bg-white text-slate-900 placeholder:text-slate-400 resize-none leading-relaxed transition-all"
           />
           <div className="absolute right-3 bottom-2.5 text-[10px] text-slate-400 font-mono">
             {situation.length}/180
@@ -227,7 +227,7 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
               onClick={() => handlePresetClick(preset)}
               className={`text-[11px] px-2.5 py-1 rounded-lg border text-left transition-colors cursor-pointer ${
                 situation === preset
-                  ? 'bg-red-50 text-red-700 border-red-200 font-semibold'
+                  ? 'bg-brand-50 text-brand-700 border-brand-200 font-semibold'
                   : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
@@ -244,7 +244,7 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
         <button
           type="button"
           onClick={handleIssueClick}
-          className="w-full py-4 px-4 bg-red-600 hover:bg-red-700 active:scale-[0.99] text-white font-bold rounded-2xl shadow-[0_6px_18px_-6px_rgba(220,38,38,0.5)] transition-all flex items-center justify-center space-x-2 text-sm sm:text-base cursor-pointer"
+          className="w-full py-4 px-4 bg-brand-600 hover:bg-brand-700 active:scale-[0.99] text-white font-bold rounded-2xl shadow-[0_6px_18px_-6px_rgba(113,56,68,0.25)] transition-all flex items-center justify-center space-x-2 text-sm sm:text-base cursor-pointer"
         >
           <FileCheck2 className="w-4 h-4 sm:w-5 sm:h-5" />
           <span>핑계 문서 만들기</span>

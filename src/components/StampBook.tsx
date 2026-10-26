@@ -37,7 +37,7 @@ export const StampBook: React.FC<StampBookProps> = ({
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
           <div className="flex items-center space-x-1.5 text-slate-500 text-xs mb-1">
-            <FileCheck2 className="w-4 h-4 text-red-700" />
+            <FileCheck2 className="w-4 h-4 text-brand-700" />
             <span className="font-medium">만든 문서</span>
           </div>
           <p className="text-2xl font-bold text-slate-900 font-mono">
@@ -105,10 +105,10 @@ export const StampBook: React.FC<StampBookProps> = ({
       <div className="bg-white p-5 sm:p-7 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center space-x-2">
-            <Stamp className="w-5 h-5 text-red-700" />
+            <Stamp className="w-5 h-5 text-brand-700" />
             <h2 className="text-lg font-sans font-bold text-slate-900">도장 선택</h2>
           </div>
-          <span className="text-xs text-red-700 font-semibold bg-red-50 border border-red-200 px-2.5 py-0.5 rounded-full">
+          <span className="text-xs text-brand-700 font-semibold bg-brand-50 border border-brand-200 px-2.5 py-0.5 rounded-full">
             {stamps.length}개 모두 사용 가능
           </span>
         </div>
@@ -175,7 +175,7 @@ export const StampBook: React.FC<StampBookProps> = ({
                   <p className="text-xs text-slate-600 font-medium mb-1 mt-1">{stamp.description}</p>
                 </div>
 
-                <button type="button" onClick={() => onSelectStampToUse?.(stamp.id)} className="mt-3 w-full rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100">이 도장 쓰기</button>
+                <button type="button" onClick={() => onSelectStampToUse?.(stamp.id)} className="mt-3 w-full rounded-xl bg-brand-50 px-3 py-2 text-xs font-semibold text-brand-700 hover:bg-brand-100">이 도장 쓰기</button>
               </div>
             );
           })}

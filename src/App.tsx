@@ -345,7 +345,7 @@ export default function App() {
   const achievements = getAchievementsWithStatus(userStats);
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa] text-slate-900 flex flex-col font-sans selection:bg-red-100 selection:text-red-900 pb-20 md:pb-0">
+    <div className="min-h-screen bg-[#f5f7fa] text-slate-900 flex flex-col font-sans selection:bg-brand-100 selection:text-brand-900 pb-20 md:pb-0">
       {/* Top Navigation */}
       <Navbar
         activeTab={activeTab}
@@ -400,7 +400,7 @@ export default function App() {
           <div className="space-y-6 sm:space-y-8">
             {/* Clean Editorial Hero Header */}
             <div className="space-y-3 pb-2 sm:pb-4">
-              <p className="text-xs font-bold tracking-wide text-red-600">EXCUSE OFFICE</p>
+              <p className="text-xs font-bold tracking-wide text-brand-600">EXCUSE OFFICE</p>
               <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
                 오늘의 핑계, 정식으로 승인받기
               </h1>

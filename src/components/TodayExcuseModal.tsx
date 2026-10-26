@@ -59,8 +59,8 @@ export const TodayExcuseModal: React.FC<TodayExcuseModalProps> = ({
           </div>
 
           <div className="pt-2 border-t border-slate-100">
-            <span className="text-[11px] font-sans font-bold text-red-800">추천 문구</span>
-            <p className="text-red-950 font-bold bg-red-50/80 p-2.5 rounded-lg border border-red-200/80 mt-1">
+            <span className="text-[11px] font-sans font-bold text-brand-800">추천 문구</span>
+            <p className="text-brand-950 font-bold bg-brand-50/80 p-2.5 rounded-lg border border-brand-200/80 mt-1">
               {today.excuse.decision}
             </p>
           </div>
@@ -78,7 +78,7 @@ export const TodayExcuseModal: React.FC<TodayExcuseModalProps> = ({
           <button
             type="button"
             onClick={handleAdopt}
-            className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm cursor-pointer transition-colors"
+            className="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm cursor-pointer transition-colors"
           >
             <span>이 핑계로 문서 만들기</span>
             <ArrowRight className="w-3.5 h-3.5" />

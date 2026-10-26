@@ -2,6 +2,17 @@
 
 @theme {
   --font-sans: 'Noto Sans KR', system-ui, sans-serif;
+  --color-brand-50: #f8f3f4;
+  --color-brand-100: #f0e4e7;
+  --color-brand-200: #dfc7cd;
+  --color-brand-300: #c4a0aa;
+  --color-brand-400: #ad7b88;
+  --color-brand-500: #925663;
+  --color-brand-600: #713844;
+  --color-brand-700: #5c2934;
+  --color-brand-800: #47212b;
+  --color-brand-900: #351a22;
+  --color-brand-950: #241116;
 }
 
 @layer base {
@@ -14,8 +25,8 @@
   }
   button, summary { -webkit-tap-highlight-color: transparent; }
   button:not(:disabled), summary { cursor: pointer; }
-  :focus-visible { outline: 2px solid #dc2626; outline-offset: 3px; }
-  ::selection { background: #fee2e2; color: #7f1d1d; }
+  :focus-visible { outline: 2px solid #713844; outline-offset: 3px; }
+  ::selection { background: #f0e4e7; color: #351a22; }
 }
 
 @media (prefers-reduced-motion: reduce) {
