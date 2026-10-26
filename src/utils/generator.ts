@@ -1,6 +1,7 @@
 import { ExcuseCategory, DocumentType, GeneratedExcuse, IssuedDocument, IssueMode } from '../types';
 import { APPROVAL_TIERS, INITIAL_STAMPS } from '../data/excuses';
 import { SIMPLE_THEMES, type ExcuseVariant } from '../data/simpleThemes';
+import { DOCUMENT_DISCLAIMER } from './documentText';
 
 function pick<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)];
@@ -22,30 +23,30 @@ function findVariants(category: ExcuseCategory, situation: string): ExcuseVarian
 const SIMPLE_REASONS: Record<ExcuseCategory, { causes: string[]; decisions: string[] }> = {
   daily: {
     causes: ['계획은 세웠지만 몸과 마음이 조금 늦게 따라왔어요.', '하루 계획에 예상하지 못한 쉼표가 생겼어요.', '바로 시작하려 했지만 준비 시간이 더 필요했어요.'],
-    decisions: ['오늘은 조금 늦게 시작해도 괜찮아요.', '남은 일은 할 수 있을 때 다시 해요.', '잠깐 쉬고 천천히 움직여도 됩니다.'],
+    decisions: ['계획과 몸의 의견이 달라 생긴 일입니다. 오늘 한 번만 너그럽게 봐주시기 바랍니다.', '오늘 일정에 예상 밖의 쉼표가 들어갔습니다. 친구 여러분은 마침표로 오해하지 말아 주시기 바랍니다.', '준비 중이었으므로 아무것도 안 했다는 주장은 받아들이기 어렵습니다. 마음속 노력도 인정해 주시기 바랍니다.'],
   },
   work_school: {
     causes: ['해야 할 일이 많아 머리가 복잡했어요.', '과제나 일을 시작하기가 쉽지 않았어요.', '잠깐 쉬는 사이 시간이 지나갔어요.'],
-    decisions: ['오늘 할 일은 가능한 만큼만 해요.', '급하지 않은 일은 나중에 해도 괜찮아요.', '잠깐 쉬고 하나씩 다시 시작해요.'],
+    decisions: ['머릿속 업무가 밀려 처리가 늦어졌습니다. 친구 여러분의 재촉은 잠시 뒤에 접수하겠습니다.', '과제와 일이 시간을 먼저 가져갔습니다. 오늘의 느린 답변과 늦은 등장을 한 번만 봐주시기 바랍니다.', '일할 마음은 분명히 있었습니다. 마음과 결과 사이의 시차를 인정해 주시기 바랍니다.'],
   },
   health_fitness: {
     causes: ['몸과 마음이 평소보다 천천히 움직이고 싶었어요.', '오늘 쓸 기운을 잠깐 충전할 시간이 필요했어요.', '계획보다 컨디션을 먼저 챙기기로 했어요.'],
-    decisions: ['오늘은 몸을 쉬게 해 주세요.', '컨디션이 좋아지면 다시 해요.', '하루의 계획이 달라졌다고 너무 걱정하지 않아도 돼요.'],
+    decisions: ['오늘은 몸이 휴업을 선언했습니다. 본인의 의사와 별개로 일정 변경을 요청합니다.', '기운이 돌아올 때까지 임시 충전 중입니다. 우정에는 이상이 없으니 안심해 주시기 바랍니다.', '오늘 계획은 몸의 반대로 취소됐습니다. 잔소리는 몸과 직접 협의해 주시기 바랍니다.'],
   },
   social: {
     causes: ['마음을 정리하는 시간이 조금 필요했어요.', '생각한 계획과 실제 상황이 조금 달랐어요.', '서두르기보다 잠깐 쉬어 가고 싶었어요.'],
-    decisions: ['필요한 이야기는 미리 전하고 쉬어도 돼요.', '편할 때 마음을 전해도 괜찮아요.', '다음에는 더 좋은 기분으로 이어가요.'],
+    decisions: ['친구를 피한 게 아니라 오늘의 에너지가 먼저 도망갔습니다. 우정은 그대로 유지합니다.', '예상 밖의 상황으로 일정이 꼬였습니다. 다음 만남의 웃긴 이야기로 대신 갚겠습니다.', '오늘은 잠깐 연락과 외출을 쉬겠습니다. 친구 명단에서 삭제하는 일은 보류해 주시기 바랍니다.'],
   },
   etc: {
     causes: ['생각한 계획과 실제 상황이 조금 달랐어요.', '마음이 복잡해서 쉬고 싶었어요.', '생각보다 일이 잘 풀리지 않았어요.'],
-    decisions: ['오늘은 너무 자책하지 않아도 돼요.', '한 번에 하나씩 다시 해봐요.', '잠깐 쉬고 나서 이어가도 괜찮아요.'],
+    decisions: ['사정이 이러하므로 오늘 한 번만 봐주시기 바랍니다. 다음 핑계는 더 잘 준비하겠습니다.', '설명은 조금 부족하지만 도장은 확실히 찍었습니다. 친구 여러분의 넓은 이해를 요청합니다.', '본 사유를 오늘의 공식 핑계로 제출합니다. 추가 질문은 간식과 함께 부탁드립니다.'],
   },
 };
 
 const SIMPLE_JUDGMENTS = [
-  '누구나 이런 날이 있어요.',
-  '조금 쉬어 가도 괜찮은 상황이에요.',
-  '너무 무리하지 말고 천천히 해도 됩니다.',
+  '이유가 너무 구체적이므로 일단 고개를 끄덕이기로 했습니다.',
+  '말은 조금 길지만 본인은 매우 진지하게 주장하고 있습니다.',
+  '핑계가 접수됐습니다. 친구 여러분의 너그러운 판정을 기다립니다.',
 ];
 
 const TODAY_SITUATIONS: Record<ExcuseCategory, string[]> = {
@@ -87,14 +88,14 @@ function buildExcuse(situation: string, variant: ExcuseVariant, judgment: string
   const { cause, decision } = variant;
   const title = shortSituation
     ? '“' + shortSituation + '”에 대한 핑계'
-    : '오늘은 쉬어도 되는 이유';
+    : '오늘의 공식 핑계';
 
   return {
     title,
     cause,
     description: situation
-      ? '“' + situation + '” 때문에 만든 재미용 가짜 문서예요.'
-      : '오늘 겪은 일을 가볍게 웃어넘길 수 있게 만든 문서예요.',
+      ? '“' + situation + '” 사유로 친구 여러분의 봐주기를 요청합니다.'
+      : '친구 여러분에게 오늘의 핑계를 제출합니다.',
     judgment,
     decision,
     fullSummary: cause + ' ' + decision,
@@ -195,6 +196,6 @@ export function createIssuedDocument(params: {
     stampName: stamp.name,
     stampSealText: stamp.sealText,
     organization: '핑계오피스',
-    disclaimer: '재미로 만든 가짜 문서입니다. 실제 서류로 쓸 수 없어요.',
+    disclaimer: DOCUMENT_DISCLAIMER,
   };
 }

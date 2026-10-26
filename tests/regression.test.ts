@@ -4,6 +4,11 @@ import { createIssuedDocument, generateExcuse, getTodayExcuse } from '../src/uti
 import { createBackup, restoreBackup } from '../src/utils/backup';
 import { getAllDocuments } from '../src/utils/db';
 import { getUserStats, mergeUserStats, normalizeUserStats, saveUserStats } from '../src/utils/storage';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { DocumentPreview } from '../src/components/DocumentPreview';
+import { DOCUMENT_DISCLAIMER, getDocumentShareText } from '../src/utils/documentText';
+import { SIMPLE_THEMES } from '../src/data/simpleThemes';
 
 class MemoryStorage implements Storage {
   private data = new Map<string, string>();
@@ -130,4 +135,36 @@ test('손상된 활동 기록은 정상 값으로 정리하고 초기 기록 배
   assert.equal(invalid.totalIssued, 0);
   assert.equal(invalid.categoryCount.daily, 0);
   assert.deepEqual(invalid.unlockedStampIds, ['stamp_default']);
+});
+
+test('간단한 문서와 긴 문서는 맨 아래 안내를 한 번만 보여 주고 5번 안내와 조언을 넣지 않는다', () => {
+  const fixture = documentFixture();
+  for (const issueMode of ['quick', 'formal'] as const) {
+    const markup = renderToStaticMarkup(React.createElement(DocumentPreview, {
+      document: { ...fixture, issueMode },
+    }));
+    assert.equal(markup.split(DOCUMENT_DISCLAIMER).length - 1, 1);
+    assert.doesNotMatch(markup, />5\.<|>안내<|그래서 계획한 일을|너무 무리하지 말고|다시 시작해요/);
+    assert.ok(markup.lastIndexOf(DOCUMENT_DISCLAIMER) > markup.indexOf(fixture.excuse.decision));
+    assert.match(markup, /최종 핑계/);
+  }
+  const shareText = getDocumentShareText(fixture);
+  assert.ok(shareText.endsWith(DOCUMENT_DISCLAIMER));
+  assert.equal(shareText.split(DOCUMENT_DISCLAIMER).length - 1, 1);
+});
+
+test('결과는 생활 조언 대신 친구에게 보낼 장난스러운 핑계로 만든다', () => {
+  const coaching = /자책하지|다시 시작해|천천히 해|괜찮아요|하나씩.*해요|편하게.*해요/;
+  for (const theme of SIMPLE_THEMES) {
+    for (const variant of theme.variants) assert.doesNotMatch(variant.decision, coaching);
+  }
+  for (let i = 0; i < 3; i++) {
+    const sleep = generateExcuse('daily', '늦잠을 잤어요.');
+    assert.match(sleep.decision, /친구|봐주|항의/);
+    const social = generateExcuse('social', '약속에 가기 싫어요.');
+    assert.match(social.decision, /우정|양보|봐주/);
+    const generic = generateExcuse('etc', '예상 밖의 상황이에요.');
+    assert.match(generic.decision, /봐주|이해|질문/);
+    assert.doesNotMatch(generic.judgment + generic.decision, coaching);
+  }
 });

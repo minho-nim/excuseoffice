@@ -1,6 +1,7 @@
 import React, { forwardRef, useState } from 'react';
 import { IssuedDocument, IssueMode } from '../types';
 import { DOCUMENT_TYPES } from '../data/excuses';
+import { DOCUMENT_DISCLAIMER, getDocumentShareText } from '../utils/documentText';
 import { Shield, Sparkles, FileText, Download, FileDown, Copy, Check, ZoomIn, ZoomOut, RefreshCw, CheckCircle2 } from 'lucide-react';
 
 interface DocumentPreviewProps {
@@ -34,7 +35,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
     const isLargeFont = fontSizeScale === 'large';
 
     const handleCopy = async () => {
-      const shareText = `[핑계 문서] ${doc.excuse.title}\n문서 번호: ${doc.issueNumber}\n이름: ${doc.applicant}\n\n상황: "${doc.situation}"\n이유: ${doc.excuse.cause}\n결과: ${doc.excuse.decision}\n\n재미로 만든 가짜 문서입니다. 실제 서류로 쓸 수 없어요.`;
+      const shareText = getDocumentShareText(doc);
       try {
         await navigator.clipboard.writeText(shareText);
         setCopied(true);
@@ -190,7 +191,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
                     주식회사 핑계오피스
                   </h3>
                   <p className="text-[10px] text-slate-500 font-mono">
-                    재미로 만든 가짜 문서
+                    친구에게 보내는 공식 핑계
                   </p>
                 </div>
               </div>
@@ -243,13 +244,10 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
               <div className="bg-red-50/90 border-2 border-red-800 p-4 rounded-sm shadow-xs">
                 <div className="text-[11px] font-sans font-bold text-red-900 mb-1 flex items-center space-x-1">
                   <CheckCircle2 className="w-3.5 h-3.5 text-red-700" />
-                  <span>결과</span>
+                  <span>최종 핑계</span>
                 </div>
                 <p className={`font-black text-red-950 break-keep leading-snug ${isLargeFont ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}>
                   {doc.excuse.decision}
-                </p>
-                <p className="text-[11px] text-red-800 mt-2 pt-2 border-t border-red-200/80 font-sans leading-normal">
-                  ※ 재미로 만든 가짜 문서입니다. 실제 증명서나 허가서로 쓸 수 없어요.
                 </p>
               </div>
             </div>
@@ -274,7 +272,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
             {/* Parody Disclaimer */}
             <div className="mt-4 pt-2 border-t border-slate-300 text-center">
               <p className="text-[10px] font-bold text-red-700 tracking-tight">
-                {doc.disclaimer}
+                {DOCUMENT_DISCLAIMER}
               </p>
             </div>
           </div>
@@ -297,7 +295,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
                 주식회사 핑계오피스
               </div>
               <div className="text-[10px] text-slate-500 font-sans tracking-tight mt-1">
-                가상 회사 · 실제 기관이 아닙니다
+                핑계는 진지하게, 확인은 너그럽게
               </div>
             </div>
 
@@ -315,7 +313,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
                 </div>
                 <div className="flex items-center">
                   <span className="w-16 font-bold text-slate-700">받는 사람:</span>
-                  <span className="font-semibold text-slate-900">관계자</span>
+                  <span className="font-semibold text-slate-900">친구 여러분</span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-16 font-bold text-slate-700">참고:</span>
@@ -372,7 +370,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
                   <span>요청한 내용</span>
                 </h3>
                 <div className="pl-4 space-y-1 text-slate-800">
-                  <p>가. 아래 상황을 바탕으로 핑계 문서를 만들었습니다.</p>
+                  <p>가. 아래 사유로 오늘 한 번만 봐주기를 요청합니다.</p>
                   <p className="bg-white/80 p-2.5 rounded border border-slate-300 italic break-keep">
                     나. 상황: <strong>"{doc.situation}"</strong>
                   </p>
@@ -386,7 +384,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
                   <span>이유</span>
                 </h3>
                 <p className="pl-4 text-justify break-keep">
-                  <strong>{doc.excuse.cause}</strong> 그래서 계획한 일을 하기 어려웠던 것 같아요.
+                  <strong>{doc.excuse.cause}</strong>
                 </p>
               </div>
 
@@ -394,10 +392,10 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
               <div className="space-y-1">
                 <h3 className="font-bold text-slate-950 flex items-center space-x-1.5">
                   <span className="font-mono">3.</span>
-                  <span>한마디</span>
+                  <span>검토 의견</span>
                 </h3>
                 <p className="pl-4 text-justify break-keep">
-                  {doc.excuse.judgment} 너무 무리하지 말고 천천히 해도 괜찮아요.
+                  {doc.excuse.judgment}
                 </p>
               </div>
 
@@ -405,34 +403,17 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
               <div className="space-y-1 border-2 border-red-800 bg-red-50/70 p-3.5 rounded-sm shadow-xs">
                 <h3 className="font-bold text-red-950 flex items-center space-x-1.5">
                   <span className="font-mono">4.</span>
-                  <span>결과</span>
+                  <span>최종 핑계</span>
                 </h3>
                 <div className="pl-4 space-y-1 text-slate-950 font-medium">
-                  <p>가. 『{doc.situation}』에 대한 핑계 문서를 만들었습니다.</p>
-                  <p>나. <strong>{doc.excuse.decision}</strong></p>
-                  <p>다. 필요하면 주변 사람에게 미리 알려 주세요.</p>
-                  <p>라. 쉬고 나서 할 수 있는 만큼 다시 시작해요.</p>
+                  <p><strong>{doc.excuse.decision}</strong></p>
                 </div>
-              </div>
-
-              {/* Clause 5: Attachments & End */}
-              <div className="space-y-1 text-slate-600 text-xs">
-                <h3 className="font-bold text-slate-800 flex items-center space-x-1.5">
-                  <span className="font-mono">5.</span>
-                  <span>안내</span>
-                </h3>
-                <p className="pl-4">
-                  재미로 만든 가짜 문서입니다. 실제 증명서나 허가서로 쓸 수 없어요.
-                </p>
               </div>
             </div>
 
             {/* Corporate Sign-off & Red Seal */}
             <div className="mt-8 pt-6 border-t-2 border-slate-800 flex items-center justify-between">
               <div className="space-y-1 text-left">
-                <p className="text-xs text-slate-500 font-sans">
-                  이 문서는 재미로 만들었습니다. 실제 기관에서 만든 서류가 아닙니다.
-                </p>
                 <p className="text-xl sm:text-2xl font-black text-slate-950 tracking-wider font-serif">
                   주식회사 핑계오피스 대표이사
                 </p>
@@ -446,7 +427,7 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
             {/* Parody Disclaimer */}
             <div className="mt-6 pt-3 border-t border-slate-300 text-center">
               <p className="text-[10px] sm:text-[11px] font-bold text-red-700 tracking-tight">
-                {doc.disclaimer}
+                {DOCUMENT_DISCLAIMER}
               </p>
             </div>
           </div>

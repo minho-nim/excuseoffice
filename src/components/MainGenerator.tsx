@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ExcuseCategory, DocumentType, IssuedDocument, UserStats, StampInfo, IssueMode } from '../types';
 import { CATEGORIES, RECOMMENDED_SITUATIONS, DOCUMENT_TYPES } from '../data/excuses';
+import { getDocumentShareText } from '../utils/documentText';
 import {
   Sparkles,
   Shuffle,
@@ -107,7 +108,7 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
 
   const handleCopyText = async () => {
     if (!currentDocument) return;
-    const shareText = `[핑계 문서]\n문서 번호: ${currentDocument.issueNumber}\n제목: ${currentDocument.excuse.title}\n상황: "${currentDocument.situation}"\n\n이유: ${currentDocument.excuse.cause}\n결과: ${currentDocument.excuse.decision}\n\n재미로 만든 가짜 문서입니다. 실제 서류로 쓸 수 없어요.`;
+    const shareText = getDocumentShareText(currentDocument);
     try {
       await navigator.clipboard.writeText(shareText);
       setCopied(true);

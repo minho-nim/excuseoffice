@@ -393,7 +393,7 @@ export default function App() {
                 공식 핑계 발급소
               </h1>
               <p className="text-xs sm:text-sm text-stone-500 font-sans">
-                상황을 적으면 재미있는 핑계 문서를 만들어 드려요.
+                상황을 적고 친구에게 보낼 장난스러운 핑계 문서를 만들어 보세요.
               </p>
             </div>
 
@@ -491,7 +491,7 @@ export default function App() {
           <div className="flex items-center space-x-2">
             <span className="font-serif font-bold text-stone-800">ExcuseOffice</span>
             <span>·</span>
-            <span className="text-red-700 font-medium">재미로 만든 가짜 문서예요. 실제 서류로 쓸 수 없어요.</span>
+            <span>친구끼리 웃고 넘기는 핑계 한 장</span>
           </div>
 
           <div className="text-[11px] font-mono text-stone-400">

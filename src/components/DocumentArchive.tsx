@@ -336,7 +336,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
                     이름: <strong className="text-stone-800">{doc.applicant}</strong>
                   </span>
                   <span className="text-red-700 font-semibold text-[11px] truncate max-w-[260px] sm:max-w-md">
-                    결과: {doc.excuse.decision}
+                    핑계: {doc.excuse.decision}
                   </span>
                 </div>
               </div>

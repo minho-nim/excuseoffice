@@ -1,5 +1,6 @@
 import { IssuedDocument } from '../types';
 import { CATEGORIES, DOCUMENT_TYPES, INITIAL_STAMPS } from '../data/excuses';
+import { DOCUMENT_DISCLAIMER } from './documentText';
 
 const DB_NAME = 'ExcuseOfficeDB';
 const DB_VERSION = 1;
@@ -262,7 +263,7 @@ export async function importDocuments(docs: any[]): Promise<{ added: number; ski
       stampName: stamp.name,
       stampSealText: stamp.sealText,
       organization: String(item.organization || '핑계오피스'),
-      disclaimer: '재미로 만든 가짜 문서입니다. 실제 서류로 쓸 수 없어요.',
+      disclaimer: DOCUMENT_DISCLAIMER,
     };
 
     await saveDocument(validDoc);
