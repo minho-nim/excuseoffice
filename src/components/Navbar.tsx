@@ -38,7 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ExcuseOffice
               </span>
               <span className="text-[11px] text-stone-500 font-sans ml-1.5 hidden sm:inline">
-                공식 핑계 발급소
+                핑계 문서 만들기
               </span>
             </div>
           </div>
@@ -55,7 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <FileText className="w-3.5 h-3.5" />
-              <span>공문 발급</span>
+              <span>핑계 만들기</span>
             </button>
 
             <button
@@ -68,7 +68,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Archive className="w-3.5 h-3.5" />
-              <span>보관소</span>
+              <span>내 문서</span>
               {documentCount > 0 && (
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
                   activeTab === 'archive' ? 'bg-stone-700 text-stone-200' : 'bg-stone-200 text-stone-700'
@@ -88,7 +88,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Stamp className="w-3.5 h-3.5" />
-              <span>도감</span>
+              <span>도장 모으기</span>
               <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
                 activeTab === 'stamps' ? 'bg-red-800 text-stone-100' : 'bg-red-50 text-red-700'
               }`}>
@@ -105,7 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold rounded-lg border border-amber-200/80 transition-colors flex items-center space-x-1 cursor-pointer"
             >
               <Sparkles className="w-3 h-3 text-amber-600" />
-              <span className="hidden sm:inline">오늘의 핑계</span>
+              <span className="hidden sm:inline">오늘의 추천</span>
               <span className="sm:hidden">오늘</span>
             </button>
 

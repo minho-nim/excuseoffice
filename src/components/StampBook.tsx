@@ -37,7 +37,7 @@ export const StampBook: React.FC<StampBookProps> = ({
         <div className="bg-white p-4 rounded-2xl border border-stone-200/80 shadow-2xs">
           <div className="flex items-center space-x-1.5 text-stone-500 text-xs mb-1">
             <FileCheck2 className="w-4 h-4 text-red-700" />
-            <span className="font-medium">누적 발급</span>
+            <span className="font-medium">만든 문서</span>
           </div>
           <p className="text-2xl font-bold text-stone-900 font-mono">
             {userStats.totalIssued} <span className="text-xs font-normal text-stone-400">건</span>
@@ -47,7 +47,7 @@ export const StampBook: React.FC<StampBookProps> = ({
         <div className="bg-white p-4 rounded-2xl border border-stone-200/80 shadow-2xs">
           <div className="flex items-center space-x-1.5 text-stone-500 text-xs mb-1">
             <Stamp className="w-4 h-4 text-amber-600" />
-            <span className="font-medium">직인 수집</span>
+            <span className="font-medium">모은 도장</span>
           </div>
           <p className="text-2xl font-bold text-stone-900 font-mono">
             {unlockedStampCount} / {stamps.length}
@@ -57,7 +57,7 @@ export const StampBook: React.FC<StampBookProps> = ({
         <div className="bg-white p-4 rounded-2xl border border-stone-200/80 shadow-2xs">
           <div className="flex items-center space-x-1.5 text-stone-500 text-xs mb-1">
             <Flame className="w-4 h-4 text-orange-600" />
-            <span className="font-medium">연속 방문</span>
+            <span className="font-medium">연속으로 온 날</span>
           </div>
           <p className="text-2xl font-bold text-stone-900 font-mono">
             {userStats.streakDays || 1} <span className="text-xs font-normal text-stone-400">일차</span>
@@ -67,7 +67,7 @@ export const StampBook: React.FC<StampBookProps> = ({
         <div className="bg-white p-4 rounded-2xl border border-stone-200/80 shadow-2xs">
           <div className="flex items-center space-x-1.5 text-stone-500 text-xs mb-1">
             <Award className="w-4 h-4 text-indigo-600" />
-            <span className="font-medium">행정 훈장</span>
+            <span className="font-medium">모은 기록</span>
           </div>
           <p className="text-2xl font-bold text-stone-900 font-mono">
             {unlockedAchCount} / {achievements.length}
@@ -79,7 +79,7 @@ export const StampBook: React.FC<StampBookProps> = ({
       <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-2xs">
         <h3 className="text-xs font-bold text-stone-700 uppercase tracking-tight mb-3 flex items-center space-x-1.5">
           <BarChart3 className="w-4 h-4 text-stone-400" />
-          <span>관할 부서별 발급 현황</span>
+          <span>종류별 문서 수</span>
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
           {CATEGORIES.map((cat) => {
@@ -105,15 +105,15 @@ export const StampBook: React.FC<StampBookProps> = ({
         <div className="flex items-center justify-between border-b border-stone-100 pb-3">
           <div className="flex items-center space-x-2">
             <Stamp className="w-5 h-5 text-red-700" />
-            <h2 className="text-base sm:text-lg font-serif font-bold text-stone-900">공식 승인 도장 도감</h2>
+            <h2 className="text-base sm:text-lg font-serif font-bold text-stone-900">내 도장</h2>
           </div>
           <span className="text-xs text-red-700 font-semibold bg-red-50 border border-red-200 px-2.5 py-0.5 rounded-full">
-            {unlockedStampCount === stamps.length ? '전체 해금 완료' : `${unlockedStampCount}종 날인 가능`}
+            {unlockedStampCount === stamps.length ? '모든 도장을 모았어요' : `${unlockedStampCount}개 사용 가능`}
           </span>
         </div>
 
         <p className="text-xs text-stone-500">
-          누적 발급 횟수와 조건에 따라 고유한 인장이 해금되며, 문서 발급 시 원하는 도장을 선택할 수 있습니다.
+          문서를 만들면 새 도장을 모을 수 있어요. 모은 도장은 문서에 찍을 수 있습니다.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
@@ -132,11 +132,11 @@ export const StampBook: React.FC<StampBookProps> = ({
                     <span className="text-xs font-bold text-stone-800">{stamp.name}</span>
                     {stamp.isUnlocked ? (
                       <span className="inline-flex items-center text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                        <CheckCircle2 className="w-3 h-3 mr-0.5" /> 해금
+                        <CheckCircle2 className="w-3 h-3 mr-0.5" /> 사용 가능
                       </span>
                     ) : (
                       <span className="inline-flex items-center text-[10px] font-medium text-stone-500 bg-stone-200 px-2 py-0.5 rounded-full">
-                        <Lock className="w-3 h-3 mr-0.5" /> 잠김
+                        <Lock className="w-3 h-3 mr-0.5" /> 아직 못 씀
                       </span>
                     )}
                   </div>
@@ -166,7 +166,7 @@ export const StampBook: React.FC<StampBookProps> = ({
                     ) : (
                       <div className="w-20 h-20 rounded-full border-2 border-dashed border-stone-300 flex flex-col items-center justify-center text-stone-400">
                         <Lock className="w-5 h-5 mb-1 opacity-40" />
-                        <span className="text-[10px] font-mono">미해금</span>
+                        <span className="text-[10px] font-mono">잠김</span>
                       </div>
                     )}
                   </div>
@@ -175,7 +175,7 @@ export const StampBook: React.FC<StampBookProps> = ({
                 </div>
 
                 <div className="pt-2 border-t border-stone-200/80 text-[11px] text-stone-500">
-                  <span className="font-medium text-stone-700">해금 조건: </span>
+                  <span className="font-medium text-stone-700">모으는 방법: </span>
                   <span>{stamp.unlockRequirement}</span>
                 </div>
               </div>
@@ -189,7 +189,7 @@ export const StampBook: React.FC<StampBookProps> = ({
         <div className="flex items-center justify-between border-b border-stone-100 pb-3">
           <div className="flex items-center space-x-2">
             <Award className="w-5 h-5 text-indigo-700" />
-            <h2 className="text-base sm:text-lg font-serif font-bold text-stone-900">행정 업적 및 훈장</h2>
+            <h2 className="text-base sm:text-lg font-serif font-bold text-stone-900">모은 기록</h2>
           </div>
           <span className="text-xs font-mono text-stone-500">
             {unlockedAchCount}/{achievements.length} 달성

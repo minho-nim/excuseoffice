@@ -50,7 +50,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'issue' | 'archive' | 'stamps'>('issue');
   const [issueMode, setIssueMode] = useState<IssueMode>('quick');
   const [currentCategory, setCurrentCategory] = useState<ExcuseCategory>('daily');
-  const [situation, setSituation] = useState('아침에 이불과의 중력 가속도가 5배 증가하여 기상 실패');
+  const [situation, setSituation] = useState('침대에서 나오기 싫어요.');
   const [applicant, setApplicant] = useState('김핑계');
   const [documentType, setDocumentType] = useState<DocumentType>('official_statement');
   const [selectedStampId, setSelectedStampId] = useState('stamp_default');
@@ -92,15 +92,15 @@ export default function App() {
           setApplicant(latest.applicant);
         } else {
           // Generate initial preview sample so user sees an immediate result
-          const initialExcuse = generateExcuse('daily', '아침에 이불과의 중력 가속도가 5배 증가하여 기상 실패');
+          const initialExcuse = generateExcuse('daily', '침대에서 나오기 싫어요.');
           const sampleDoc = createIssuedDocument({
             applicant: stats.nickname || '김핑계',
             category: 'daily',
-            situation: '아침에 이불과의 중력 가속도가 5배 증가하여 기상 실패',
+            situation: '침대에서 나오기 싫어요.',
             excuse: initialExcuse,
             documentType: 'official_statement',
             issueMode: 'quick',
-            approvalTier: '범정부적 전원일치 승인 [초특급]',
+            approvalTier: '오늘만 특별 승인',
             stampId: 'stamp_default',
             totalIssuedSoFar: 0,
           });
@@ -127,7 +127,7 @@ export default function App() {
     const updated = getUserStats();
     setUserStats(updated);
     if (currentDocument) {
-      setCurrentDocument({ ...currentDocument, applicant: name.trim() || '익명의 시민' });
+      setCurrentDocument({ ...currentDocument, applicant: name.trim() || '이름 없는 사람' });
     }
   };
 
@@ -198,8 +198,8 @@ export default function App() {
 
         setNotification({
           type: 'success',
-          title: '★ 새로운 행정 권한 해금! ★',
-          message: `${stampMsg ? `새 직인: ${stampMsg} ` : ''}${achMsg ? `신규 업적: ${achMsg}` : ''}`,
+          title: '새 도장과 기록을 얻었어요!',
+          message: `${stampMsg ? `새 도장: ${stampMsg} ` : ''}${achMsg ? `새 기록: ${achMsg}` : ''}`,
         });
 
         confetti({
@@ -211,8 +211,8 @@ export default function App() {
       } else {
         setNotification({
           type: 'success',
-          title: '공식 핑계 공문 발급 완료',
-          message: `발급번호: ${newDoc.issueNumber}`,
+          title: '핑계 문서를 만들었어요',
+          message: `문서 번호: ${newDoc.issueNumber}`,
         });
       }
 
@@ -221,8 +221,8 @@ export default function App() {
       console.error('Document issuance failed', err);
       setNotification({
         type: 'error',
-        title: '발급 오류',
-        message: '문서 생성 중 문제가 발생했습니다.',
+        title: '문서를 만들지 못했어요',
+        message: '잠시 뒤 다시 눌러 주세요.',
       });
     }
   };
@@ -243,8 +243,8 @@ export default function App() {
 
       setNotification({
         type: 'info',
-        title: '새로운 핑계로 갱신 완료',
-        message: '새로운 원인과 의결 문구로 재심의되었습니다.',
+        title: '다른 핑계로 바꿨어요',
+        message: '새 문구를 확인해 보세요.',
       });
       setTimeout(() => setNotification(null), 2500);
     } catch (err) {
@@ -257,7 +257,7 @@ export default function App() {
     if (!documentRef.current || !currentDocument) return;
     try {
       setIsExporting(true);
-      const filename = `핑계공문_${currentDocument.issueNumber}.png`;
+      const filename = `핑계문서_${currentDocument.issueNumber}.png`;
       await exportDocumentAsPng(documentRef.current, filename);
       setNotification({
         type: 'success',
@@ -281,7 +281,7 @@ export default function App() {
     if (!documentRef.current || !currentDocument) return;
     try {
       setIsExporting(true);
-      const filename = `핑계공문_${currentDocument.issueNumber}.pdf`;
+      const filename = `핑계문서_${currentDocument.issueNumber}.pdf`;
       await exportDocumentAsPdf(documentRef.current, filename);
       setNotification({
         type: 'success',
@@ -381,7 +381,7 @@ export default function App() {
                 공식 핑계 발급소
               </h1>
               <p className="text-xs sm:text-sm text-stone-500 font-sans">
-                일상의 사소한 곤란함을 과하게 진지한 가상 행정 공문으로 결재해 드립니다.
+                상황을 적으면 재미있는 핑계 문서를 만들어 드려요.
               </p>
             </div>
 
@@ -429,9 +429,9 @@ export default function App() {
                   ) : (
                     <div className="p-12 text-center bg-white rounded-2xl border border-stone-200">
                       <FileText className="w-12 h-12 text-stone-300 mx-auto mb-2" />
-                      <p className="text-sm font-bold text-stone-700">발급된 문서가 없습니다</p>
+                      <p className="text-sm font-bold text-stone-700">아직 만든 문서가 없어요</p>
                       <p className="text-xs text-stone-500 mt-1">
-                        왼쪽에서 상황을 입력하고 공식 핑계 공문을 발급해 보세요.
+                        상황을 적고 핑계 문서를 만들어 보세요.
                       </p>
                     </div>
                   )}
@@ -479,11 +479,11 @@ export default function App() {
           <div className="flex items-center space-x-2">
             <span className="font-serif font-bold text-stone-800">ExcuseOffice</span>
             <span>·</span>
-            <span className="text-red-700 font-medium">MinLab 패러디 문서 — 실제 증빙 효력 없음</span>
+            <span className="text-red-700 font-medium">재미로 만든 가짜 문서예요. 실제 서류로 쓸 수 없어요.</span>
           </div>
 
           <div className="text-[11px] font-mono text-stone-400">
-            100% 브라우저 로컬 구동 (IndexedDB)
+            내 기록은 이 브라우저에 저장돼요.
           </div>
         </div>
       </footer>

@@ -87,7 +87,7 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
 
   const handleIssueClick = () => {
     if (!situation.trim()) {
-      setErrorMessage('처하신 상황을 한 줄 입력하거나 아래 추천 상황을 선택해 주세요.');
+      setErrorMessage('상황을 적거나 아래 예시를 골라 주세요.');
       return;
     }
     setErrorMessage(null);
@@ -107,7 +107,7 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
 
   const handleCopyText = async () => {
     if (!currentDocument) return;
-    const shareText = `[공식 핑계 발급서]\n발급번호: ${currentDocument.issueNumber}\n건명: ${currentDocument.excuse.title}\n신청상황: "${currentDocument.situation}"\n\n■ 원인: ${currentDocument.excuse.cause}\n■ 최종결정: ${currentDocument.excuse.decision}\n\n(가상자치구 핑계행정관리국 공인)`;
+    const shareText = `[핑계 문서]\n문서 번호: ${currentDocument.issueNumber}\n제목: ${currentDocument.excuse.title}\n상황: "${currentDocument.situation}"\n\n이유: ${currentDocument.excuse.cause}\n결과: ${currentDocument.excuse.decision}\n\n재미로 만든 가짜 문서입니다. 실제 서류로 쓸 수 없어요.`;
     try {
       await navigator.clipboard.writeText(shareText);
       setCopied(true);
@@ -121,7 +121,7 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
     <div className="bg-white rounded-2xl border border-stone-200/90 shadow-sm p-5 sm:p-6 space-y-5">
       {/* 1. Header: Document Style Segmented Toggle */}
       <div className="flex items-center justify-between gap-3">
-        <span className="text-xs font-bold text-stone-700 tracking-tight">발급 서식 형태</span>
+      <span className="text-xs font-bold text-stone-700 tracking-tight">문서 모양</span>
         <div className="inline-flex p-1 bg-stone-100 rounded-lg text-xs font-semibold">
           <button
             type="button"
@@ -133,7 +133,7 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>간편 발급증</span>
+            <span>간단한 문서</span>
           </button>
           <button
             type="button"
@@ -145,14 +145,14 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
             }`}
           >
             <FileText className="w-3.5 h-3.5 text-stone-600" />
-            <span>정식 행정 공문</span>
+            <span>긴 문서</span>
           </button>
         </div>
       </div>
 
       {/* 2. Category Tabs */}
       <div>
-        <label className="text-xs font-bold text-stone-700 block mb-2">분류 선택</label>
+        <label className="text-xs font-bold text-stone-700 block mb-2">어떤 상황인가요?</label>
         <div className="grid grid-cols-5 gap-1.5">
           {CATEGORIES.map((cat) => {
             const isActive = currentCategory === cat.id;
@@ -177,14 +177,14 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
       {/* 3. Situation Input Area */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <label className="text-xs font-bold text-stone-700">처한 상황 진술</label>
+          <label className="text-xs font-bold text-stone-700">상황을 적어 주세요</label>
           <button
             type="button"
             onClick={handleRandomPick}
             className="text-xs font-semibold text-indigo-700 hover:text-indigo-900 flex items-center space-x-1 cursor-pointer transition-colors"
           >
             <Shuffle className="w-3 h-3" />
-            <span>추천 상황 랜덤 채우기</span>
+            <span>예시 바꾸기</span>
           </button>
         </div>
 
@@ -197,7 +197,7 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
               onSituationChange(e.target.value);
               if (errorMessage) setErrorMessage(null);
             }}
-            placeholder="예: 이불과의 중력 가속도가 5배 증가하여 기상 실패, 월요병으로 뇌가 정지됨 등"
+            placeholder="예: 침대에서 나오기 싫어요. 일이 너무 많아요."
             className="w-full text-xs sm:text-sm p-3.5 bg-stone-50/80 border border-stone-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-stone-800 focus:bg-white text-stone-900 placeholder:text-stone-400 resize-none leading-relaxed transition-all"
           />
           <div className="absolute right-3 bottom-2.5 text-[10px] text-stone-400 font-mono">
@@ -239,7 +239,7 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
           className="w-full py-3.5 px-4 bg-red-700 hover:bg-red-800 active:scale-[0.99] text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-sm sm:text-base cursor-pointer tracking-wide"
         >
           <FileCheck2 className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span>공식 핑계 공문 즉시 발급하기</span>
+          <span>핑계 문서 만들기</span>
         </button>
       </div>
 
@@ -252,7 +252,7 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
         >
           <span className="flex items-center space-x-1.5">
             <User className="w-3.5 h-3.5 text-stone-400" />
-            <span>신청인 명의 및 직인 변경 (선택 사항)</span>
+            <span>이름과 도장 바꾸기 (선택)</span>
           </span>
           {showSettings ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
@@ -260,7 +260,7 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
         {showSettings && (
           <div className="mt-3 p-3 bg-stone-50 rounded-xl space-y-3 text-xs border border-stone-200/60">
             <div>
-              <label className="font-semibold text-stone-700 block mb-1">신청인 별명</label>
+              <label className="font-semibold text-stone-700 block mb-1">이름 또는 별명</label>
               <input
                 type="text"
                 maxLength={12}
@@ -273,9 +273,9 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="font-semibold text-stone-700">날인 도장</label>
+                <label className="font-semibold text-stone-700">문서에 찍을 도장</label>
                 <span className="text-[10px] text-stone-500">
-                  {unlockedStamps.filter((s) => s.isUnlocked).length}/{unlockedStamps.length} 해금
+                  {unlockedStamps.filter((s) => s.isUnlocked).length}/{unlockedStamps.length} 사용 가능
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-1.5">

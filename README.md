@@ -1,20 +1,24 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# 핑계오피스
 
-# Run and deploy your AI Studio app
+상황을 적으면 재미있는 핑계 문서를 만들어 주는 웹앱입니다. 문서는 재미용이며 실제 서류나 증명서로 쓸 수 없습니다.
 
-This contains everything you need to run your app locally.
+## 사용하기
 
-View your app in AI Studio: https://ai.studio/apps/6cce839f-05cc-482f-b082-e360b59ab274
+1. 상황을 적거나 예시를 고릅니다.
+2. **핑계 문서 만들기**를 누릅니다.
+3. 문서를 복사하거나 PNG·PDF 파일로 저장합니다.
 
-## Run Locally
+내 문서는 현재 브라우저에 저장됩니다. 다른 기기에서 보이지 않으니 필요하면 백업 파일을 저장해 주세요.
 
-**Prerequisites:**  Node.js
+## 내 컴퓨터에서 실행하기
 
+Node.js가 필요합니다.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```sh
+bun install
+bun run dev
+```
+
+## 배포
+
+`main` 브랜치에 코드를 올리면 GitHub Actions가 앱을 만들고 GitHub Pages에 올립니다.

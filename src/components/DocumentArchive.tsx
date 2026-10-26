@@ -55,13 +55,13 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
 
   const handleDelete = async (e: React.MouseEvent, docId: string) => {
     e.stopPropagation();
-    if (!window.confirm('이 핑계 발급 문서를 보관소에서 삭제하시겠습니까?')) return;
+    if (!window.confirm('이 문서를 삭제할까요? 삭제하면 되돌릴 수 없어요.')) return;
     try {
       await deleteDocument(docId);
       await onRefresh();
-      setStatusMessage({ type: 'success', text: '문서가 삭제되었습니다.' });
+      setStatusMessage({ type: 'success', text: '문서를 삭제했어요.' });
     } catch {
-      setStatusMessage({ type: 'error', text: '문서 삭제 중 오류가 발생했습니다.' });
+      setStatusMessage({ type: 'error', text: '문서를 삭제하지 못했어요.' });
     }
   };
 
@@ -70,15 +70,15 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
       await clearAllDocuments();
       await onRefresh();
       setConfirmClearOpen(false);
-      setStatusMessage({ type: 'success', text: '모든 발급 기록이 초기화되었습니다.' });
+      setStatusMessage({ type: 'success', text: '모든 기록을 지웠어요.' });
     } catch {
-      setStatusMessage({ type: 'error', text: '기록 초기화에 실패했습니다.' });
+      setStatusMessage({ type: 'error', text: '기록을 지우지 못했어요.' });
     }
   };
 
   const handleExportJSON = () => {
     if (documents.length === 0) {
-      alert('백업할 발급 기록이 없습니다.');
+      alert('저장할 기록이 없어요.');
       return;
     }
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(documents, null, 2));
@@ -106,12 +106,12 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
       await onRefresh();
       setStatusMessage({
         type: 'success',
-        text: `백업 복원 완료: ${result.added}건 추가, ${result.skipped}건 제외`,
+        text: `기록을 불러왔어요. ${result.added}개를 추가했고 ${result.skipped}개는 건너뛰었어요.`,
       });
     } catch (err: any) {
       setStatusMessage({
         type: 'error',
-        text: `복원 실패: 유효하지 않은 백업 파일입니다. (${err?.message || ''})`,
+        text: `파일을 불러오지 못했어요. 백업 파일인지 확인해 주세요. (${err?.message || ''})`,
       });
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -125,13 +125,13 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
         <div>
           <div className="flex items-center space-x-2">
             <Archive className="w-5 h-5 text-stone-800" />
-            <h2 className="text-lg font-serif font-bold text-stone-900">발급 문서 보관소</h2>
+            <h2 className="text-lg font-serif font-bold text-stone-900">내 문서</h2>
             <span className="text-xs bg-stone-100 text-stone-700 font-mono px-2 py-0.5 rounded-full font-medium">
               {documents.length}건
             </span>
           </div>
           <p className="text-xs text-stone-500 mt-1">
-            브라우저 로컬 저장소에 안전하게 보관된 역대 공식 핑계 사유서입니다.
+            만든 문서는 이 브라우저에 저장돼요. 다른 기기에서는 보이지 않으니 백업 파일을 저장해 주세요.
           </p>
         </div>
 
@@ -150,7 +150,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
             className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-lg transition-colors flex items-center space-x-1 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>JSON 백업</span>
+            <span>백업 파일 저장</span>
           </button>
           <button
             type="button"
@@ -158,7 +158,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
             className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-lg transition-colors flex items-center space-x-1 cursor-pointer"
           >
             <Upload className="w-3.5 h-3.5" />
-            <span>복원</span>
+            <span>백업 불러오기</span>
           </button>
           {documents.length > 0 && (
             <button
@@ -167,7 +167,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
               className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-lg transition-colors flex items-center space-x-1 cursor-pointer"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>전체 비우기</span>
+            <span>모두 삭제</span>
             </button>
           )}
         </div>
@@ -197,10 +197,10 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
         <div className="p-4 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 space-y-3">
           <div className="flex items-center space-x-2 font-bold text-sm">
             <AlertTriangle className="w-4 h-4 text-amber-600" />
-            <span>정말로 모든 발급 기록을 삭제하시겠습니까?</span>
+            <span>저장된 문서를 모두 지울까요?</span>
           </div>
           <p className="text-xs text-amber-800">
-            삭제된 문서는 복구할 수 없습니다. 필요한 경우 먼저 "JSON 백업"을 다운로드해 두세요.
+            삭제한 문서는 되돌릴 수 없어요. 필요하면 먼저 백업 파일을 저장해 주세요.
           </p>
           <div className="flex items-center space-x-2">
             <button
@@ -229,7 +229,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="발급번호, 건명, 상황 검색…"
+            placeholder="문서 번호, 제목, 상황으로 찾기"
             className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-stone-50 border border-stone-200 rounded-xl focus:bg-white text-stone-900"
           />
         </div>
@@ -240,7 +240,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
             onChange={(e) => setSelectedCategory(e.target.value as any)}
             className="w-full py-2 px-3 text-xs sm:text-sm bg-stone-50 border border-stone-200 rounded-xl text-stone-800 font-medium cursor-pointer"
           >
-            <option value="all">전체 분류</option>
+            <option value="all">모든 종류</option>
             {CATEGORIES.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -256,7 +256,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
             className="w-full py-2 px-3 text-xs font-semibold bg-stone-50 hover:bg-stone-100 border border-stone-200 rounded-xl text-stone-700 flex items-center justify-center space-x-1 cursor-pointer transition-colors"
           >
             <Calendar className="w-3.5 h-3.5 text-stone-400" />
-            <span>{sortOrder === 'desc' ? '최신순' : '과거순'}</span>
+            <span>{sortOrder === 'desc' ? '최근 문서부터' : '오래된 문서부터'}</span>
           </button>
         </div>
       </div>
@@ -265,9 +265,9 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
       {filteredDocs.length === 0 ? (
         <div className="text-center py-12 border-2 border-dashed border-stone-200 rounded-2xl bg-stone-50/50">
           <FolderOpen className="w-10 h-10 text-stone-400 mx-auto mb-2 opacity-50" />
-          <p className="text-sm font-bold text-stone-700">보관된 핑계 문서가 없습니다</p>
+          <p className="text-sm font-bold text-stone-700">저장된 문서가 없어요</p>
           <p className="text-xs text-stone-500 mt-1">
-            {searchQuery ? '일치하는 문서가 없습니다.' : '메인 화면에서 첫 핑계 공문을 발급해 보세요!'}
+            {searchQuery ? '찾는 문서가 없어요.' : '핑계 문서를 하나 만들어 보세요!'}
           </p>
         </div>
       ) : (
@@ -297,7 +297,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
                     </span>
                     <button
                       type="button"
-                      title="열람"
+                      title="문서 열기"
                       onClick={(e) => {
                         e.stopPropagation();
                         onSelectDocument(doc);
@@ -327,10 +327,10 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
 
                 <div className="mt-2 text-xs text-stone-600 flex items-center justify-between border-t border-stone-200/60 pt-2 font-serif">
                   <span className="font-sans text-[11px] text-stone-500">
-                    신청인: <strong className="text-stone-800">{doc.applicant}</strong>
+                    이름: <strong className="text-stone-800">{doc.applicant}</strong>
                   </span>
                   <span className="text-red-700 font-semibold text-[11px] truncate max-w-[260px] sm:max-w-md">
-                    의결: {doc.excuse.decision}
+                    결과: {doc.excuse.decision}
                   </span>
                 </div>
               </div>
