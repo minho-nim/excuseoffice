@@ -1,4 +1,5 @@
 import { IssuedDocument } from '../types';
+import { CATEGORIES, DOCUMENT_TYPES, INITIAL_STAMPS } from '../data/excuses';
 
 const DB_NAME = 'ExcuseOfficeDB';
 const DB_VERSION = 1;
@@ -224,21 +225,30 @@ export async function importDocuments(docs: any[]): Promise<{ added: number; ski
       continue;
     }
 
-    if (existingIds.has(item.id)) {
+    if ((item.category !== undefined && !CATEGORIES.some((category) => category.id === item.category)) ||
+        (item.documentType !== undefined && !Object.hasOwn(DOCUMENT_TYPES, item.documentType)) ||
+        (item.issueMode !== undefined && item.issueMode !== 'quick' && item.issueMode !== 'formal') ||
+        (item.issuedAt !== undefined && !Number.isFinite(Date.parse(item.issuedAt)))) {
       skipped++;
       continue;
     }
 
+    if (existingIds.has(String(item.id))) {
+      skipped++;
+      continue;
+    }
+
+    const stamp = INITIAL_STAMPS.find((stamp) => stamp.id === item.stampId) || INITIAL_STAMPS[0];
     const validDoc: IssuedDocument = {
       id: String(item.id),
       issueNumber: String(item.issueNumber || 'EX-RESTORED'),
       issuedAt: String(item.issuedAt || new Date().toISOString()),
       formattedDate: String(item.formattedDate || '날짜 미기재'),
-      applicant: String(item.applicant || '익명의 시민'),
+      applicant: String(item.applicant || '김핑계'),
       category: item.category || 'daily',
       situation: String(item.situation),
       excuse: {
-        title: String(item.excuse?.title || '사유서'),
+        title: String(item.excuse?.title || '핑계 문서'),
         cause: String(item.excuse?.cause || ''),
         description: String(item.excuse?.description || ''),
         judgment: String(item.excuse?.judgment || ''),
@@ -248,11 +258,11 @@ export async function importDocuments(docs: any[]): Promise<{ added: number; ski
       documentType: item.documentType || 'official_statement',
       issueMode: item.issueMode || 'quick',
       approvalTier: String(item.approvalTier || '공식 승인'),
-      stampId: String(item.stampId || 'stamp_default'),
-      stampName: String(item.stampName || '기본 승인 도장'),
-      stampSealText: String(item.stampSealText || '가상행정·공식승인'),
-      organization: String(item.organization || '가상자치구 핑계행정관리국'),
-      disclaimer: 'MinLab 패러디 문서 — 실제 증빙 효력 없음',
+      stampId: stamp.id,
+      stampName: stamp.name,
+      stampSealText: stamp.sealText,
+      organization: String(item.organization || '핑계오피스'),
+      disclaimer: '재미로 만든 가짜 문서입니다. 실제 서류로 쓸 수 없어요.',
     };
 
     await saveDocument(validDoc);

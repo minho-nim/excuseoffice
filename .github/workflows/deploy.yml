@@ -29,6 +29,8 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Check the code
         run: bun run lint
+      - name: Check the main features
+        run: bun run test
       - name: Build the app
         run: bun run build
       - name: Set up GitHub Pages

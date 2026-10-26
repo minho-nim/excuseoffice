@@ -12,7 +12,9 @@ import {
   Calendar,
   FolderOpen,
 } from 'lucide-react';
-import { deleteDocument, clearAllDocuments, importDocuments } from '../utils/db';
+import { deleteDocument, clearAllDocuments } from '../utils/db';
+import { createBackup, restoreBackup } from '../utils/backup';
+import { getUserStats } from '../utils/storage';
 
 interface DocumentArchiveProps {
   documents: IssuedDocument[];
@@ -31,6 +33,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
   const [searchQuery, setSearchQuery] = useState('');
   const [confirmClearOpen, setConfirmClearOpen] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -77,18 +80,16 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
   };
 
   const handleExportJSON = () => {
-    if (documents.length === 0) {
-      alert('저장할 기록이 없어요.');
-      return;
-    }
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(documents, null, 2));
+    const data = createBackup(documents, getUserStats());
+    const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
     const nowStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('href', url);
     downloadAnchor.setAttribute('download', `ExcuseOffice_Backup_${nowStr}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const handleImportJSONClick = () => {
@@ -99,14 +100,15 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setIsRestoring(true);
     try {
       const text = await file.text();
       const parsed = JSON.parse(text);
-      const result = await importDocuments(parsed);
+      const result = await restoreBackup(parsed);
       await onRefresh();
       setStatusMessage({
         type: 'success',
-        text: `기록을 불러왔어요. ${result.added}개를 추가했고 ${result.skipped}개는 건너뛰었어요.`,
+        text: `문서 ${result.added}개를 추가했고 ${result.skipped}개는 건너뛰었어요. ${result.legacy ? '예전 백업에 있는 문서로 활동 기록을 보완했어요.' : '도장과 활동 기록도 불러왔어요.'}`,
       });
     } catch (err: any) {
       setStatusMessage({
@@ -114,6 +116,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
         text: `파일을 불러오지 못했어요. 백업 파일인지 확인해 주세요. (${err?.message || ''})`,
       });
     } finally {
+      setIsRestoring(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
@@ -131,7 +134,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
             </span>
           </div>
           <p className="text-xs text-stone-500 mt-1">
-            만든 문서는 이 브라우저에 저장돼요. 다른 기기에서는 보이지 않으니 백업 파일을 저장해 주세요.
+            문서·도장·활동 기록은 이 브라우저에 저장돼요. 백업 파일로 다른 기기에 옮길 수 있어요.
           </p>
         </div>
 
@@ -147,6 +150,7 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
           <button
             type="button"
             onClick={handleExportJSON}
+            disabled={isRestoring}
             className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-lg transition-colors flex items-center space-x-1 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
@@ -155,15 +159,17 @@ export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
           <button
             type="button"
             onClick={handleImportJSONClick}
+            disabled={isRestoring}
             className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-lg transition-colors flex items-center space-x-1 cursor-pointer"
           >
             <Upload className="w-3.5 h-3.5" />
-            <span>백업 불러오기</span>
+            <span>{isRestoring ? '불러오는 중…' : '백업 불러오기'}</span>
           </button>
           {documents.length > 0 && (
             <button
               type="button"
               onClick={() => setConfirmClearOpen(true)}
+              disabled={isRestoring}
               className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-lg transition-colors flex items-center space-x-1 cursor-pointer"
             >
               <Trash2 className="w-3.5 h-3.5" />

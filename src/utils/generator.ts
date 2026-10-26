@@ -1,13 +1,27 @@
 import { ExcuseCategory, DocumentType, GeneratedExcuse, IssuedDocument, IssueMode } from '../types';
 import { APPROVAL_TIERS, INITIAL_STAMPS } from '../data/excuses';
+import { SIMPLE_THEMES, type ExcuseVariant } from '../data/simpleThemes';
 
 function pick<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)];
 }
 
+const recentVariants = new Map<string, string[]>();
+
+function findVariants(category: ExcuseCategory, situation: string): ExcuseVariant[] {
+  const text = situation.toLowerCase().replace(/\s+/g, '');
+  const ranked = SIMPLE_THEMES.map((theme) => ({
+    theme,
+    score: theme.keywords.reduce((sum, keyword) => text.includes(keyword) ? sum + keyword.length : sum, 0),
+  })).sort((a, b) => b.score - a.score);
+  if (ranked[0].score > 0) return ranked[0].theme.variants;
+  const options = SIMPLE_REASONS[category] || SIMPLE_REASONS.etc;
+  return options.causes.map((cause, index) => ({ cause, decision: options.decisions[index] }));
+}
+
 const SIMPLE_REASONS: Record<ExcuseCategory, { causes: string[]; decisions: string[] }> = {
   daily: {
-    causes: ['이불이 너무 따뜻해서 일어나기 어려웠어요.', '아침 준비가 생각보다 오래 걸렸어요.', '잠깐 쉬려다 시간이 훌쩍 지났어요.'],
+    causes: ['계획은 세웠지만 몸과 마음이 조금 늦게 따라왔어요.', '하루 계획에 예상하지 못한 쉼표가 생겼어요.', '바로 시작하려 했지만 준비 시간이 더 필요했어요.'],
     decisions: ['오늘은 조금 늦게 시작해도 괜찮아요.', '남은 일은 할 수 있을 때 다시 해요.', '잠깐 쉬고 천천히 움직여도 됩니다.'],
   },
   work_school: {
@@ -15,15 +29,15 @@ const SIMPLE_REASONS: Record<ExcuseCategory, { causes: string[]; decisions: stri
     decisions: ['오늘 할 일은 가능한 만큼만 해요.', '급하지 않은 일은 나중에 해도 괜찮아요.', '잠깐 쉬고 하나씩 다시 시작해요.'],
   },
   health_fitness: {
-    causes: ['몸이 피곤해서 움직이기 힘들었어요.', '운동할 기운이 조금 부족했어요.', '맛있는 음식 앞에서 마음이 약해졌어요.'],
-    decisions: ['오늘은 몸을 쉬게 해 주세요.', '운동은 컨디션이 좋아지면 다시 해요.', '한 끼 먹었다고 너무 걱정하지 않아도 돼요.'],
+    causes: ['몸과 마음이 평소보다 천천히 움직이고 싶었어요.', '오늘 쓸 기운을 잠깐 충전할 시간이 필요했어요.', '계획보다 컨디션을 먼저 챙기기로 했어요.'],
+    decisions: ['오늘은 몸을 쉬게 해 주세요.', '컨디션이 좋아지면 다시 해요.', '하루의 계획이 달라졌다고 너무 걱정하지 않아도 돼요.'],
   },
   social: {
-    causes: ['사람을 만날 기운이 부족했어요.', '약속을 준비하다 보니 시간이 부족했어요.', '답장을 쓰려다 잠깐 미뤘어요.'],
-    decisions: ['필요하면 약속을 미루고 쉬어도 돼요.', '답장은 편할 때 보내도 괜찮아요.', '다음에 더 좋은 기분으로 만나요.'],
+    causes: ['마음을 정리하는 시간이 조금 필요했어요.', '생각한 계획과 실제 상황이 조금 달랐어요.', '서두르기보다 잠깐 쉬어 가고 싶었어요.'],
+    decisions: ['필요한 이야기는 미리 전하고 쉬어도 돼요.', '편할 때 마음을 전해도 괜찮아요.', '다음에는 더 좋은 기분으로 이어가요.'],
   },
   etc: {
-    causes: ['잠깐 딴짓을 하다 시간이 지나갔어요.', '마음이 복잡해서 쉬고 싶었어요.', '생각보다 일이 잘 풀리지 않았어요.'],
+    causes: ['생각한 계획과 실제 상황이 조금 달랐어요.', '마음이 복잡해서 쉬고 싶었어요.', '생각보다 일이 잘 풀리지 않았어요.'],
     decisions: ['오늘은 너무 자책하지 않아도 돼요.', '한 번에 하나씩 다시 해봐요.', '잠깐 쉬고 나서 이어가도 괜찮아요.'],
   },
 };
@@ -45,15 +59,32 @@ const TODAY_SITUATIONS: Record<ExcuseCategory, string[]> = {
 export function generateExcuse(
   category: ExcuseCategory,
   userSituation: string,
-  forceReroll = false
+  forceReroll = false,
+  previousExcuse?: GeneratedExcuse
 ): GeneratedExcuse {
-  void forceReroll;
   const situation = userSituation.trim();
+  const key = category + ':' + situation.replace(/\s+/g, '').toLowerCase();
+  const variants = findVariants(category, situation);
+  const history = recentVariants.get(key) || [];
+  const excluded = new Set(history);
+  if (forceReroll && previousExcuse) excluded.add(previousExcuse.cause);
+  let available = variants.filter((variant) => !excluded.has(variant.cause));
+  if (!available.length) {
+    const lastCause = previousExcuse?.cause || history[history.length - 1];
+    available = variants.filter((variant) => variant.cause !== lastCause);
+    history.length = 0;
+  }
+  const variant = pick(available.length ? available : variants);
+  history.push(variant.cause);
+  recentVariants.delete(key);
+  recentVariants.set(key, history);
+  if (recentVariants.size > 100) recentVariants.delete(recentVariants.keys().next().value!);
+  return buildExcuse(situation, variant, pick(SIMPLE_JUDGMENTS));
+}
+
+function buildExcuse(situation: string, variant: ExcuseVariant, judgment: string): GeneratedExcuse {
   const shortSituation = situation.length > 28 ? situation.slice(0, 28) + '…' : situation;
-  const options = SIMPLE_REASONS[category] || SIMPLE_REASONS.daily;
-  const cause = pick(options.causes);
-  const decision = pick(options.decisions);
-  const judgment = pick(SIMPLE_JUDGMENTS);
+  const { cause, decision } = variant;
   const title = shortSituation
     ? '“' + shortSituation + '”에 대한 핑계'
     : '오늘은 쉬어도 되는 이유';
@@ -82,6 +113,10 @@ export function getTodayExcuse(dateString?: string): {
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const dd = String(now.getDate()).padStart(2, '0');
   const key = dateString || yyyy + '-' + mm + '-' + dd;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(key) || !Number.isFinite(Date.parse(key + 'T00:00:00Z')) ||
+      new Date(key + 'T00:00:00Z').toISOString().slice(0, 10) !== key) {
+    throw new Error('날짜를 확인해 주세요.');
+  }
 
   let hash = 0;
   for (let i = 0; i < key.length; i++) {
@@ -93,7 +128,9 @@ export function getTodayExcuse(dateString?: string): {
   const category = categories[seed % categories.length];
   const situations = TODAY_SITUATIONS[category];
   const situation = situations[Math.floor(seed / 7) % situations.length];
-  const excuse = generateExcuse(category, situation);
+  const variants = findVariants(category, situation);
+  const excuse = buildExcuse(situation, variants[Math.floor(seed / 17) % variants.length], SIMPLE_JUDGMENTS[Math.floor(seed / 23) % SIMPLE_JUDGMENTS.length]);
+  const [year, month, day] = key.split('-');
 
   return {
     category,
@@ -106,7 +143,7 @@ export function getTodayExcuse(dateString?: string): {
     }[category],
     situation,
     excuse,
-    dateFormatted: yyyy + '년 ' + mm + '월 ' + dd + '일',
+    dateFormatted: year + '년 ' + month + '월 ' + day + '일',
   };
 }
 

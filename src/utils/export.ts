@@ -1,6 +1,3 @@
-import { toPng } from 'html-to-image';
-import jsPDF from 'jspdf';
-
 /**
  * Downloads a data URL as a file (supports mobile browsers via hidden anchor and target blank fallback)
  */
@@ -22,6 +19,7 @@ export async function exportDocumentAsPng(
   filename: string
 ): Promise<void> {
   try {
+    const { toPng } = await import('html-to-image');
     // Wait for web fonts to be completely ready
     if (document.fonts) {
       await document.fonts.ready;
@@ -62,6 +60,10 @@ export async function exportDocumentAsPdf(
   filename: string
 ): Promise<void> {
   try {
+    const [{ toPng }, { default: jsPDF }] = await Promise.all([
+      import('html-to-image'),
+      import('jspdf'),
+    ]);
     if (document.fonts) {
       await document.fonts.ready;
     }

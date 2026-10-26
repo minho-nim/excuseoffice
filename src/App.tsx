@@ -119,6 +119,7 @@ export default function App() {
     setDocuments(stored);
     const updatedStats = getUserStats();
     setUserStats(updatedStats);
+    if (updatedStats.nickname !== userStats.nickname) setApplicant(updatedStats.nickname);
   };
 
   const handleApplicantChange = (name: string) => {
@@ -230,8 +231,18 @@ export default function App() {
   // Regenerate excuse for current document
   const handleRegenerateExcuse = async () => {
     if (!currentDocument) return;
+    if (!situation.trim()) {
+      setNotification({ type: 'error', title: '상황을 적어 주세요', message: '상황을 적거나 예시를 골라 주세요.' });
+      return;
+    }
+    // Changed inputs and the unsaved sample become a new document, preserving the old one.
+    if (currentDocument.category !== currentCategory || currentDocument.situation !== situation.trim() ||
+        !documents.some((doc) => doc.id === currentDocument.id)) {
+      await handleIssueNewDocument();
+      return;
+    }
     try {
-      const newExcuse = generateExcuse(currentCategory, situation, true);
+      const newExcuse = generateExcuse(currentDocument.category, currentDocument.situation, true, currentDocument.excuse);
       const updatedDoc: IssuedDocument = {
         ...currentDocument,
         excuse: newExcuse,
@@ -249,6 +260,7 @@ export default function App() {
       setTimeout(() => setNotification(null), 2500);
     } catch (err) {
       console.error('Regenerate failed', err);
+      setNotification({ type: 'error', title: '핑계를 바꾸지 못했어요', message: '잠시 뒤 다시 눌러 주세요.' });
     }
   };
 

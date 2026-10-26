@@ -1,4 +1,4 @@
-import { UserStats, ExcuseCategory, StampInfo, Achievement } from '../types';
+import { UserStats, ExcuseCategory, StampInfo, Achievement, IssuedDocument } from '../types';
 import { INITIAL_STAMPS } from '../data/excuses';
 
 const STORAGE_KEY = 'excuse_office_user_stats';
@@ -75,17 +75,18 @@ export const ACHIEVEMENTS: Achievement[] = [
  * Load user stats from localStorage with fallback and streak calculation
  */
 export function getUserStats(): UserStats {
-  if (typeof window === 'undefined') return INITIAL_STATS;
+  if (typeof window === 'undefined') return normalizeUserStats();
 
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    let stats: UserStats = raw ? JSON.parse(raw) : { ...INITIAL_STATS };
+    const stats = normalizeUserStats(raw ? JSON.parse(raw) : undefined);
 
     // Update streak based on local date
     const todayStr = getTodayString();
     if (!stats.lastVisitDate) {
       stats.lastVisitDate = todayStr;
       stats.streakDays = 1;
+      saveUserStats(stats);
     } else if (stats.lastVisitDate !== todayStr) {
       const last = new Date(stats.lastVisitDate);
       const today = new Date(todayStr);
@@ -107,17 +108,81 @@ export function getUserStats(): UserStats {
     return stats;
   } catch (e) {
     console.warn('Failed to parse user stats from localStorage', e);
-    return INITIAL_STATS;
+    return normalizeUserStats();
   }
 }
 
-export function saveUserStats(stats: UserStats): void {
+export function saveUserStats(stats: UserStats, strict = false): void {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
   } catch (e) {
+    if (strict) throw new Error('활동 기록을 저장하지 못했어요. 브라우저 저장 공간을 확인해 주세요.');
     console.warn('Failed to save user stats', e);
   }
+}
+
+function count(value: unknown): number {
+  return typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : 0;
+}
+
+export function normalizeUserStats(value?: unknown): UserStats {
+  const source = value && typeof value === 'object' ? value as Partial<UserStats> : {};
+  const categoryCount = { ...INITIAL_STATS.categoryCount };
+  for (const category of Object.keys(categoryCount) as ExcuseCategory[]) {
+    categoryCount[category] = count(source.categoryCount?.[category]);
+  }
+  const validDate = typeof source.lastVisitDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(source.lastVisitDate) &&
+    Number.isFinite(Date.parse(source.lastVisitDate + 'T00:00:00Z')) &&
+    new Date(source.lastVisitDate + 'T00:00:00Z').toISOString().slice(0, 10) === source.lastVisitDate;
+  return {
+    totalIssued: Math.max(count(source.totalIssued), Object.values(categoryCount).reduce((a, b) => a + b, 0)),
+    categoryCount,
+    unlockedStampIds: ['stamp_default', ...INITIAL_STAMPS.filter((stamp) => stamp.id !== 'stamp_default' &&
+      Array.isArray(source.unlockedStampIds) && source.unlockedStampIds.includes(stamp.id)).map((stamp) => stamp.id)],
+    unlockedAchievements: ACHIEVEMENTS.filter((item) => Array.isArray(source.unlockedAchievements) &&
+      source.unlockedAchievements.includes(item.id)).map((item) => item.id),
+    nickname: typeof source.nickname === 'string' && source.nickname.trim() ? source.nickname.trim().slice(0, 12) : '김핑계',
+    lastVisitDate: validDate ? source.lastVisitDate! : '',
+    streakDays: Math.max(1, count(source.streakDays)),
+  };
+}
+
+// Merge progress without adding the same backup's counters more than once.
+export function mergeUserStats(current: UserStats, restored: unknown, documents: IssuedDocument[], today = getTodayString()): UserStats {
+  const local = normalizeUserStats(current);
+  const incoming = normalizeUserStats(restored);
+  const stats = normalizeUserStats(local);
+  for (const category of Object.keys(stats.categoryCount) as ExcuseCategory[]) {
+    stats.categoryCount[category] = Math.max(local.categoryCount[category], incoming.categoryCount[category],
+      documents.filter((doc) => doc.category === category).length);
+  }
+  const highestSequence = documents.reduce((max, doc) => {
+    const match = /-(\d+)$/.exec(doc.issueNumber);
+    return Math.max(max, match ? count(Number(match[1])) : 0);
+  }, 0);
+  stats.totalIssued = Math.max(local.totalIssued, incoming.totalIssued, highestSequence,
+    Object.values(stats.categoryCount).reduce((a, b) => a + b, 0));
+  stats.unlockedStampIds = [...new Set([...local.unlockedStampIds, ...incoming.unlockedStampIds])];
+  stats.unlockedAchievements = [...new Set([...local.unlockedAchievements, ...incoming.unlockedAchievements])];
+  if (!local.totalIssued && local.nickname === '김핑계') stats.nickname = incoming.nickname;
+  const currentStreak = (snapshot: UserStats) => {
+    const gap = Math.round((Date.parse(today + 'T00:00:00Z') - Date.parse(snapshot.lastVisitDate + 'T00:00:00Z')) / 86400000);
+    return gap === 0 ? snapshot.streakDays : gap === 1 ? snapshot.streakDays + 1 : 1;
+  };
+  stats.lastVisitDate = today;
+  stats.streakDays = Math.max(currentStreak(local), currentStreak(incoming));
+  const stamp = (id: string) => { if (!stats.unlockedStampIds.includes(id)) stats.unlockedStampIds.push(id); };
+  const achievement = (id: string) => { if (!stats.unlockedAchievements.includes(id)) stats.unlockedAchievements.push(id); };
+  if (stats.totalIssued >= 1) achievement('ach_first_excuse');
+  if (stats.totalIssued >= 3) { stamp('stamp_special'); achievement('ach_triple_threat'); }
+  if (stats.totalIssued >= 5) stamp('stamp_urgent');
+  if (stats.totalIssued >= 10) { stamp('stamp_force_majeure'); achievement('ach_bureaucrat'); }
+  if (Object.values(stats.categoryCount).every((n) => n > 0)) { stamp('stamp_legendary'); achievement('ach_all_rounder'); }
+  if (stats.streakDays >= 3) achievement('ach_streak_3');
+  if (documents.some((doc) => doc.documentType === 'urgent_dispatch')) { stamp('stamp_urgent'); achievement('ach_urgent_master'); }
+  if (documents.some((doc) => new Date(doc.issuedAt).getHours() < 5)) achievement('ach_night_owl');
+  return stats;
 }
 
 export function getTodayString(): string {
