@@ -1,0 +1,6 @@
+{
+  "name": "ExcuseOffice — 공식 핑계 발급소",
+  "description": "일상의 사소한 상황을 과하게 진지한 가상 행정 공문으로 발급해 드립니다. 고화질 문서 발급, 승인 도장 해금 및 PDF/PNG 저장 지원.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
