@@ -32,7 +32,7 @@ import {
   getAchievementsWithStatus,
   setApplicantNickname,
 } from './utils/storage';
-import { exportDocumentAsPng, exportDocumentAsPdf } from './utils/export';
+import { prepareDocumentDownload, requestDocumentDownload, type DocumentDownload, type DocumentFileFormat } from './utils/export';
 import { applyDocumentDetails, getDefaultDocumentDetails, getDocumentDetails } from './utils/documentText';
 import { Navbar } from './components/Navbar';
 import { MainGenerator } from './components/MainGenerator';
@@ -61,6 +61,9 @@ export default function App() {
   const [documents, setDocuments] = useState<IssuedDocument[]>([]);
   const [currentDocument, setCurrentDocument] = useState<IssuedDocument | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [download, setDownload] = useState<DocumentDownload | null>(null);
+  const exportPending = useRef(false);
+  useEffect(() => () => { if (download) URL.revokeObjectURL(download.url); }, [download]);
   const [isTodayModalOpen, setIsTodayModalOpen] = useState(false);
   const [notification, setNotification] = useState<{
     type: 'success' | 'info' | 'error';
@@ -274,50 +277,27 @@ export default function App() {
     }
   };
 
-  // PNG Export
-  const handleExportPng = async () => {
-    if (!documentRef.current || !currentDocument) return;
+  const handleExport = async (format: DocumentFileFormat) => {
+    if (exportPending.current || !documentRef.current || !currentDocument) return;
+    exportPending.current = true;
+    setIsExporting(true);
+    setDownload(null);
     try {
-      setIsExporting(true);
-      const filename = `핑계문서_${currentDocument.issueNumber}.png`;
-      await exportDocumentAsPng(documentRef.current, filename);
-      setNotification({
-        type: 'success',
-        title: '이미지 저장 완료',
-        message: `${filename} 파일로 다운로드되었습니다.`,
-      });
-      setTimeout(() => setNotification(null), 3000);
-    } catch (err: any) {
+      const file = await prepareDocumentDownload(documentRef.current, currentDocument, format);
+      setDownload(file);
+      // A browser may block this after asynchronous rendering. Keep a real
+      // download link visible so the user can save again with a direct click.
+      requestDocumentDownload(file);
+    } catch (error) {
+      console.error('Document export failed', error);
       setNotification({
         type: 'error',
-        title: '저장 실패',
-        message: err?.message || '이미지 저장에 실패했습니다.',
+        title: '파일을 저장하지 못했어요',
+        message: error instanceof Error && error.message.includes('오래 걸렸어요')
+          ? error.message : '다시 눌러 주세요. 계속 안 되면 다른 브라우저에서 열어 주세요.',
       });
     } finally {
-      setIsExporting(false);
-    }
-  };
-
-  // PDF Export
-  const handleExportPdf = async () => {
-    if (!documentRef.current || !currentDocument) return;
-    try {
-      setIsExporting(true);
-      const filename = `핑계문서_${currentDocument.issueNumber}.pdf`;
-      await exportDocumentAsPdf(documentRef.current, filename);
-      setNotification({
-        type: 'success',
-        title: 'PDF 저장 완료',
-        message: `${filename} 파일로 다운로드되었습니다.`,
-      });
-      setTimeout(() => setNotification(null), 3000);
-    } catch (err: any) {
-      setNotification({
-        type: 'error',
-        title: 'PDF 저장 실패',
-        message: err?.message || 'PDF 저장에 실패했습니다.',
-      });
-    } finally {
+      exportPending.current = false;
       setIsExporting(false);
     }
   };
@@ -433,9 +413,7 @@ export default function App() {
                   currentDocument={currentDocument}
                   onIssueNewDocument={handleIssueNewDocument}
                   onRegenerateExcuse={handleRegenerateExcuse}
-                  onExportPng={handleExportPng}
-                  onExportPdf={handleExportPdf}
-                  isExporting={isExporting}
+
                 />
               </div>
 
@@ -447,8 +425,9 @@ export default function App() {
                       ref={documentRef}
                       document={currentDocument}
                       onModeChange={handleIssueModeChange}
-                      onExportPng={handleExportPng}
-                      onExportPdf={handleExportPdf}
+                      onExportPng={() => handleExport('png')}
+                      onExportPdf={() => handleExport('pdf')}
+                      download={download?.source === currentDocument ? download : null}
                       onRegenerate={handleRegenerateExcuse}
                       isExporting={isExporting}
                     />
@@ -473,8 +452,8 @@ export default function App() {
             documents={documents}
             onRefresh={refreshDocuments}
             onSelectDocument={handleSelectArchivedDocument}
-            onExportDocPng={handleExportPng}
-            onExportDocPdf={handleExportPdf}
+
+
           />
         )}
 

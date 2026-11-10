@@ -3,6 +3,7 @@ import type { IssuedDocument, IssueMode } from '../types';
 import { INITIAL_STAMPS } from '../data/excuses';
 import { DOCUMENT_DISCLAIMER, getDocumentDetails, getDocumentShareText } from '../utils/documentText';
 import { getReviewOpinion } from '../utils/review';
+import type { DocumentDownload } from '../utils/export';
 import { Check, Copy, Download, FileDown, FileText, RefreshCw, Sparkles, ZoomIn, ZoomOut } from 'lucide-react';
 
 interface DocumentPreviewProps {
@@ -13,10 +14,11 @@ interface DocumentPreviewProps {
   onExportPdf?: () => Promise<void>;
   onRegenerate?: () => void;
   isExporting?: boolean;
+  download?: DocumentDownload | null;
 }
 
 export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
-  ({ document: doc, className = '', onModeChange, onExportPng, onExportPdf, onRegenerate, isExporting = false }, ref) => {
+  ({ document: doc, className = '', onModeChange, onExportPng, onExportPdf, onRegenerate, isExporting = false, download }, ref) => {
     const [largeFont, setLargeFont] = useState(false);
     const [copied, setCopied] = useState(false);
     const details = getDocumentDetails(doc);
@@ -126,6 +128,15 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
           {onExportPng && <button type="button" disabled={isExporting} onClick={onExportPng} className="flex items-center justify-center gap-2 rounded-2xl bg-brand-600 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-brand-700 disabled:opacity-50"><Download className="h-4 w-4" />{isExporting ? '파일 만드는 중…' : '이미지로 저장하기'}</button>}
           {onExportPdf && <button type="button" disabled={isExporting} onClick={onExportPdf} className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"><FileDown className="h-4 w-4" />PDF</button>}
         </div>
+        {download && (
+          <div role="status" className="rounded-2xl border border-brand-200 bg-brand-50 p-4 text-sm text-brand-900">
+            <p>파일이 준비됐어요. 자동으로 저장되지 않으면 아래 링크를 눌러 주세요.</p>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 font-semibold underline underline-offset-4">
+              <a href={download.url} download={download.filename}>파일 다운로드</a>
+              <a href={download.url} target="_blank" rel="noopener noreferrer">새 탭에서 파일 열기</a>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

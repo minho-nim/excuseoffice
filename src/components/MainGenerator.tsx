@@ -42,9 +42,6 @@ interface MainGeneratorProps {
   currentDocument: IssuedDocument | null;
   onIssueNewDocument: () => void;
   onRegenerateExcuse: () => void;
-  onExportPng: () => Promise<void>;
-  onExportPdf: () => Promise<void>;
-  isExporting: boolean;
 }
 
 export const MainGenerator: React.FC<MainGeneratorProps> = ({
@@ -67,9 +64,6 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
   currentDocument,
   onIssueNewDocument,
   onRegenerateExcuse,
-  onExportPng,
-  onExportPdf,
-  isExporting,
 }) => {
   const [copied, setCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

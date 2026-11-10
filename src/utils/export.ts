@@ -1,134 +1,69 @@
-/**
- * Downloads a data URL as a file (supports mobile browsers via hidden anchor and target blank fallback)
- */
-function downloadDataUrl(dataUrl: string, filename: string): void {
-  const link = document.createElement('a');
-  link.download = filename;
-  link.href = dataUrl;
-  link.target = '_self';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+import type { IssuedDocument } from '../types';
+
+export type DocumentFileFormat = 'png' | 'pdf';
+export type DocumentDownload = { url: string; filename: string; source: IssuedDocument };
+
+async function captureDocument(element: HTMLElement): Promise<HTMLCanvasElement> {
+  const { toCanvas } = await import('html-to-image');
+  // The sheet uses text and CSS only. Export with local fonts instead of fetching
+  // the full remote Korean font family and embedding it in the image.
+  const canvas = await toCanvas(element, {
+    pixelRatio: 2,
+    skipFonts: true,
+    backgroundColor: '#ffffff',
+    style: { transform: 'none', boxShadow: 'none' },
+    filter: (node) => !(node instanceof HTMLElement && node.dataset.noCapture === 'true'),
+  });
+  if (!canvas.width || !canvas.height) throw new Error('문서 크기를 읽지 못했어요.');
+  return canvas;
 }
 
-/**
- * Capture DOM element to PNG and trigger download
- */
-export async function exportDocumentAsPng(
-  element: HTMLElement,
-  filename: string
-): Promise<void> {
-  try {
-    const { toPng } = await import('html-to-image');
-    // Wait for web fonts to be completely ready
-    if (document.fonts) {
-      await document.fonts.ready;
-    }
-
-    // Slight timeout for layout stabilization
-    await new Promise((r) => setTimeout(r, 100));
-
-    const dataUrl = await toPng(element, {
-      pixelRatio: 2.5,
-      cacheBust: true,
-      backgroundColor: '#ffffff',
-      style: {
-        transform: 'none',
-        borderRadius: '0px',
-      },
-      filter: (node) => {
-        // Exclude any controls or download buttons if inside
-        if (node instanceof HTMLElement && node.dataset.noCapture === 'true') {
-          return false;
-        }
-        return true;
-      },
+async function createDocumentBlob(element: HTMLElement, format: DocumentFileFormat): Promise<Blob> {
+  const canvas = await captureDocument(element);
+  if (format === 'png') {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob?.size) resolve(blob);
+        else reject(new Error('이미지 파일을 만들지 못했어요.'));
+      }, 'image/png');
     });
+  }
 
-    downloadDataUrl(dataUrl, filename.endsWith('.png') ? filename : `${filename}.png`);
-  } catch (error) {
-    console.error('PNG Export failed:', error);
-    throw new Error('문서 이미지(PNG) 저장 중 오류가 발생했습니다. 브라우저 설정을 확인해 주세요.');
+  const { default: jsPDF } = await import('jspdf');
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 10;
+  const scale = Math.min((pageWidth - 2 * margin) / canvas.width, (pageHeight - 2 * margin) / canvas.height);
+  const width = canvas.width * scale;
+  const height = canvas.height * scale;
+  pdf.addImage(canvas, 'PNG', (pageWidth - width) / 2, margin, width, height, undefined, 'FAST');
+  return pdf.output('blob');
+}
+
+export async function prepareDocumentDownload(element: HTMLElement, source: IssuedDocument, format: DocumentFileFormat): Promise<DocumentDownload> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const blob = await Promise.race([
+      createDocumentBlob(element, format),
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(() => reject(new Error('파일을 만드는 데 시간이 너무 오래 걸렸어요. 다시 눌러 주세요.')), 15_000);
+      }),
+    ]);
+    return { url: URL.createObjectURL(blob), filename: `핑계문서_${source.issueNumber}.${format}`, source };
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
-/**
- * Capture DOM element, scale to A4 dimensions, and export as PDF
- */
-export async function exportDocumentAsPdf(
-  element: HTMLElement,
-  filename: string
-): Promise<void> {
+export function requestDocumentDownload(file: DocumentDownload): void {
+  const link = document.createElement('a');
+  link.href = file.url;
+  link.download = file.filename;
+  document.body.appendChild(link);
   try {
-    const [{ toPng }, { default: jsPDF }] = await Promise.all([
-      import('html-to-image'),
-      import('jspdf'),
-    ]);
-    if (document.fonts) {
-      await document.fonts.ready;
-    }
-
-    await new Promise((r) => setTimeout(r, 100));
-
-    // High quality PNG capture
-    const dataUrl = await toPng(element, {
-      pixelRatio: 2.5,
-      cacheBust: true,
-      backgroundColor: '#ffffff',
-      style: {
-        transform: 'none',
-      },
-      filter: (node) => {
-        if (node instanceof HTMLElement && node.dataset.noCapture === 'true') {
-          return false;
-        }
-        return true;
-      },
-    });
-
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-    });
-
-    const pageWidth = pdf.internal.pageSize.getWidth(); // 210mm
-    const pageHeight = pdf.internal.pageSize.getHeight(); // 297mm
-
-    // Add 10mm margin
-    const margin = 10;
-    const printableWidth = pageWidth - margin * 2;
-    const printableHeight = pageHeight - margin * 2;
-
-    const img = new Image();
-    img.src = dataUrl;
-
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-    });
-
-    const imgWidth = img.naturalWidth;
-    const imgHeight = img.naturalHeight;
-    const imgRatio = imgWidth / imgHeight;
-
-    let targetWidth = printableWidth;
-    let targetHeight = printableWidth / imgRatio;
-
-    // If height exceeds printable height, constrain by height
-    if (targetHeight > printableHeight) {
-      targetHeight = printableHeight;
-      targetWidth = printableHeight * imgRatio;
-    }
-
-    // Center on page
-    const xPos = margin + (printableWidth - targetWidth) / 2;
-    const yPos = margin + (printableHeight - targetHeight) / 2;
-
-    pdf.addImage(dataUrl, 'PNG', xPos, yPos, targetWidth, targetHeight, undefined, 'FAST');
-    pdf.save(filename.endsWith('.pdf') ? filename : `${filename}.pdf`);
-  } catch (error) {
-    console.error('PDF Export failed:', error);
-    throw new Error('문서 PDF 변환 및 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+    link.click();
+  } finally {
+    link.remove();
   }
 }

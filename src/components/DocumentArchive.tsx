@@ -20,8 +20,6 @@ interface DocumentArchiveProps {
   documents: IssuedDocument[];
   onRefresh: () => Promise<void>;
   onSelectDocument: (doc: IssuedDocument) => void;
-  onExportDocPng: (doc: IssuedDocument) => Promise<void>;
-  onExportDocPdf: (doc: IssuedDocument) => Promise<void>;
 }
 
 export const DocumentArchive: React.FC<DocumentArchiveProps> = ({
