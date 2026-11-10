@@ -20,7 +20,6 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 
 interface MainGeneratorProps {
   currentCategory: ExcuseCategory;
@@ -91,17 +90,6 @@ export const MainGenerator: React.FC<MainGeneratorProps> = ({
     }
     setErrorMessage(null);
     onIssueNewDocument();
-
-    try {
-      confetti({
-        particleCount: 45,
-        spread: 60,
-        origin: { y: 0.7 },
-        colors: ['#b91c1c', '#1e293b', '#f59e0b', '#4f46e5'],
-      });
-    } catch {
-      // ignore
-    }
   };
 
   const handleCopyText = async () => {

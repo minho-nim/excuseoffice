@@ -46,7 +46,6 @@ import {
   Info,
   FileText,
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'issue' | 'archive' | 'stamps'>('issue');
@@ -217,12 +216,6 @@ export default function App() {
           message: `${stampMsg ? `새 도장: ${stampMsg} ` : ''}${achMsg ? `새 기록: ${achMsg}` : ''}`,
         });
 
-        confetti({
-          particleCount: 60,
-          spread: 80,
-          origin: { y: 0.6 },
-          colors: ['#dc2626', '#f59e0b', '#8b5cf6', '#10b981'],
-        });
       } else {
         setNotification({
           type: 'success',
