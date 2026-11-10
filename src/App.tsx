@@ -32,7 +32,7 @@ import {
   getAchievementsWithStatus,
   setApplicantNickname,
 } from './utils/storage';
-import { prepareDocumentDownload, requestDocumentDownload, type DocumentDownload, type DocumentFileFormat } from './utils/export';
+import { copyDocumentImage, prepareDocumentDownload, requestDocumentDownload, type DocumentDownload, type DocumentFileFormat } from './utils/export';
 import { applyDocumentDetails, getDefaultDocumentDetails, getDocumentDetails } from './utils/documentText';
 import { Navbar } from './components/Navbar';
 import { MainGenerator } from './components/MainGenerator';
@@ -61,6 +61,7 @@ export default function App() {
   const [documents, setDocuments] = useState<IssuedDocument[]>([]);
   const [currentDocument, setCurrentDocument] = useState<IssuedDocument | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [isCopyingImage, setIsCopyingImage] = useState(false);
   const [download, setDownload] = useState<DocumentDownload | null>(null);
   const exportPending = useRef(false);
   useEffect(() => () => { if (download) URL.revokeObjectURL(download.url); }, [download]);
@@ -302,6 +303,26 @@ export default function App() {
     }
   };
 
+  const handleCopyImage = async () => {
+    if (exportPending.current || !documentRef.current) return;
+    exportPending.current = true;
+    setIsCopyingImage(true);
+    try {
+      await copyDocumentImage(documentRef.current);
+      setNotification({ type: 'success', title: '이미지를 복사했어요', message: '채팅이나 문서에 바로 붙여넣으세요.' });
+    } catch (error) {
+      setNotification({
+        type: 'error',
+        title: '이미지를 복사하지 못했어요',
+        message: error instanceof Error && error.message.includes('지원하지 않아요')
+          ? error.message : '클립보드 권한을 확인하거나 이미지 저장을 이용해 주세요.',
+      });
+    } finally {
+      exportPending.current = false;
+      setIsCopyingImage(false);
+    }
+  };
+
   const handleSelectArchivedDocument = (doc: IssuedDocument) => {
     setCurrentDocument(doc);
     setDocumentDetails(getDocumentDetails(doc));
@@ -427,6 +448,8 @@ export default function App() {
                       onModeChange={handleIssueModeChange}
                       onExportPng={() => handleExport('png')}
                       onExportPdf={() => handleExport('pdf')}
+                      onCopyImage={handleCopyImage}
+                      isCopyingImage={isCopyingImage}
                       download={download?.source === currentDocument ? download : null}
                       onRegenerate={handleRegenerateExcuse}
                       isExporting={isExporting}

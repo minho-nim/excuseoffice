@@ -4,7 +4,7 @@ import { INITIAL_STAMPS } from '../data/excuses';
 import { DOCUMENT_DISCLAIMER, getDocumentDetails, getDocumentShareText } from '../utils/documentText';
 import { getReviewOpinion } from '../utils/review';
 import type { DocumentDownload } from '../utils/export';
-import { Check, Copy, Download, FileDown, FileText, RefreshCw, Sparkles, ZoomIn, ZoomOut } from 'lucide-react';
+import { Check, Copy, Download, FileDown, FileText, Image, RefreshCw, Sparkles, ZoomIn, ZoomOut } from 'lucide-react';
 
 interface DocumentPreviewProps {
   document: IssuedDocument;
@@ -12,13 +12,15 @@ interface DocumentPreviewProps {
   onModeChange?: (mode: IssueMode) => void;
   onExportPng?: () => Promise<void>;
   onExportPdf?: () => Promise<void>;
+  onCopyImage?: () => Promise<void>;
+  isCopyingImage?: boolean;
   onRegenerate?: () => void;
   isExporting?: boolean;
   download?: DocumentDownload | null;
 }
 
 export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
-  ({ document: doc, className = '', onModeChange, onExportPng, onExportPdf, onRegenerate, isExporting = false, download }, ref) => {
+  ({ document: doc, className = '', onModeChange, onExportPng, onExportPdf, onCopyImage, onRegenerate, isExporting = false, isCopyingImage = false, download }, ref) => {
     const [largeFont, setLargeFont] = useState(false);
     const [copied, setCopied] = useState(false);
     const details = getDocumentDetails(doc);
@@ -124,9 +126,10 @@ export const DocumentPreview = forwardRef<HTMLDivElement, DocumentPreviewProps>(
           </div>
         </div>
 
-        <div className="grid grid-cols-[1fr_auto] gap-2">
-          {onExportPng && <button type="button" disabled={isExporting} onClick={onExportPng} className="flex items-center justify-center gap-2 rounded-2xl bg-brand-600 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-brand-700 disabled:opacity-50"><Download className="h-4 w-4" />{isExporting ? '파일 만드는 중…' : '이미지로 저장하기'}</button>}
-          {onExportPdf && <button type="button" disabled={isExporting} onClick={onExportPdf} className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"><FileDown className="h-4 w-4" />PDF</button>}
+        <div className="flex flex-wrap gap-2">
+          {onCopyImage && <button type="button" disabled={isCopyingImage || isExporting} onClick={onCopyImage} className="flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-brand-600 px-3 py-3.5 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-50"><Image className="h-4 w-4 shrink-0" />{isCopyingImage ? '복사 중…' : '이미지 복사'}</button>}
+          {onExportPng && <button type="button" disabled={isExporting || isCopyingImage} onClick={onExportPng} className="flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-slate-200 bg-white px-3 py-3.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"><Download className="h-4 w-4 shrink-0" />{isExporting ? '파일 만드는 중…' : '이미지 저장'}</button>}
+          {onExportPdf && <button type="button" disabled={isExporting || isCopyingImage} onClick={onExportPdf} className="flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl border border-slate-200 bg-white px-3 py-3.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"><FileDown className="h-4 w-4 shrink-0" />PDF</button>}
         </div>
         {download && (
           <div role="status" className="rounded-2xl border border-brand-200 bg-brand-50 p-4 text-sm text-brand-900">

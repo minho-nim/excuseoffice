@@ -18,7 +18,7 @@ async function captureDocument(element: HTMLElement): Promise<HTMLCanvasElement>
   return canvas;
 }
 
-async function createDocumentBlob(element: HTMLElement, format: DocumentFileFormat): Promise<Blob> {
+async function renderDocumentBlob(element: HTMLElement, format: DocumentFileFormat): Promise<Blob> {
   const canvas = await captureDocument(element);
   if (format === 'png') {
     return new Promise((resolve, reject) => {
@@ -41,19 +41,35 @@ async function createDocumentBlob(element: HTMLElement, format: DocumentFileForm
   return pdf.output('blob');
 }
 
-export async function prepareDocumentDownload(element: HTMLElement, source: IssuedDocument, format: DocumentFileFormat): Promise<DocumentDownload> {
+async function createDocumentBlob(element: HTMLElement, format: DocumentFileFormat): Promise<Blob> {
   let timeout: ReturnType<typeof setTimeout> | undefined;
   try {
-    const blob = await Promise.race([
-      createDocumentBlob(element, format),
+    return await Promise.race([
+      renderDocumentBlob(element, format),
       new Promise<never>((_, reject) => {
         timeout = setTimeout(() => reject(new Error('파일을 만드는 데 시간이 너무 오래 걸렸어요. 다시 눌러 주세요.')), 15_000);
       }),
     ]);
-    return { url: URL.createObjectURL(blob), filename: `핑계문서_${source.issueNumber}.${format}`, source };
   } finally {
     clearTimeout(timeout);
   }
+}
+
+export async function prepareDocumentDownload(element: HTMLElement, source: IssuedDocument, format: DocumentFileFormat): Promise<DocumentDownload> {
+  const blob = await createDocumentBlob(element, format);
+  return { url: URL.createObjectURL(blob), filename: `핑계문서_${source.issueNumber}.${format}`, source };
+}
+
+export async function copyDocumentImage(element: HTMLElement): Promise<void> {
+  if (typeof ClipboardItem === 'undefined' || !navigator.clipboard?.write ||
+      (typeof ClipboardItem.supports === 'function' && !ClipboardItem.supports('image/png'))) {
+    throw new Error('이 브라우저에서는 이미지 복사를 지원하지 않아요. 이미지 저장을 이용해 주세요.');
+  }
+
+  const image = createDocumentBlob(element, 'png');
+  // Keep the clipboard write inside the button gesture, even while the PNG is rendering.
+  void image.catch(() => {});
+  await navigator.clipboard.write([new ClipboardItem({ 'image/png': image })]);
 }
 
 export function requestDocumentDownload(file: DocumentDownload): void {
